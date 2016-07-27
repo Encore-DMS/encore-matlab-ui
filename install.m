@@ -5,5 +5,5 @@ function install(skipTests)
 
     package(skipTests);
     root = fileparts(mfilename('fullpath'));
-    matlab.apputil.install(fullfile(root, 'target', 'Encore.mlappinstall'));
+    matlab.apputil.install(fullfile(root, 'target', 'Encore UI.mlappinstall'));
 end

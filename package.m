@@ -14,7 +14,7 @@ function package(skipTests)
     addpath(genpath(fullfile(rootPath, 'lib')));
     addpath(genpath(fullfile(rootPath, 'src')));
 
-    projectFile = fullfile(rootPath, 'Encore.prj');
+    projectFile = fullfile(rootPath, 'Encore UI.prj');
 
     dom = xmlread(projectFile);
     root = dom.getDocumentElement();
@@ -50,7 +50,7 @@ function package(skipTests)
     end
 
     % Replace fullpaths with ${PROJECT_ROOT}.
-    config.setAttribute('file', fullfile('${PROJECT_ROOT}', 'Encore.prj'));
+    config.setAttribute('file', fullfile('${PROJECT_ROOT}', 'Encore UI.prj'));
     config.setAttribute('location', '${PROJECT_ROOT}');
     output = config.getElementsByTagName('param.output').item(0);
     output.setTextContent(fullfile('${PROJECT_ROOT}', 'target'));
