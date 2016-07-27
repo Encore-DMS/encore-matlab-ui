@@ -18,14 +18,12 @@
     <param.output>${PROJECT_ROOT}\target</param.output>
     <param.guid>baf97d0c-615d-49d8-bf63-9d048a84a832</param.guid>
     <unset>
-      
       <param.icons/>
       <param.screenshot/>
       <param.products.name/>
       <param.products.id/>
       <param.products.version/>
       <param.platforms/>
-      
     </unset>
     <fileset.main>
       <file>${PROJECT_ROOT}\src\main\matlab\main.m</file>
@@ -361,7 +359,7 @@
     </fileset.resources>
     <fileset.package/>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}" name="encore-matlab-ui" optional="false">${PROJECT_ROOT}\target</file>
+      <file location="${PROJECT_ROOT}" name="target" optional="false">${PROJECT_ROOT}\target</file>
     </build-deliverables>
     <workflow/>
     <matlab>

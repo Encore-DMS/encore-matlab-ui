@@ -4,6 +4,15 @@ classdef MainView < appbox.View
     end
     
     methods
+        
+        function createUi(obj)
+            import appbox.*;
+            
+            set(obj.figureHandle, ...
+                'Name', 'Encore', ...
+                'Position', screenCenter(300, 300));
+        end
+        
     end
     
 end
