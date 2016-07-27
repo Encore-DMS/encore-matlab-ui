@@ -8,7 +8,7 @@
     <param.icons />
     <param.summary>Data Acquisition System</param.summary>
     <param.description>Encore is a MATLAB based data management system for scientists.</param.description>
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\src\main\resources\screenshot.png</param.screenshot>
     <param.version>1.0.0.0</param.version>
     <param.products.name />
     <param.products.id />
@@ -18,7 +18,6 @@
     <param.guid>baf97d0c-615d-49d8-bf63-9d048a84a832</param.guid>
     <unset>
       <param.icons />
-      <param.screenshot />
       <param.products.name />
       <param.products.id />
       <param.products.version />
