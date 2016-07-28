@@ -31,7 +31,9 @@ classdef MainPresenter < appbox.Presenter
     methods (Access = private)
         
         function onViewSelectedConfigureOptions(obj, ~, ~)
-            disp('Selected configure options');
+            options = [];
+            presenter = encoreui.ui.presenters.OptionsPresenter(options);
+            presenter.goWaitStop();
         end
         
         function onViewSelectedShowDocumentation(obj, ~, ~)
