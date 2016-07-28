@@ -34,7 +34,8 @@ classdef MainPresenter < appbox.Presenter
     methods (Access = private)
         
         function onViewSelectedCloneDataStore(obj, ~, ~)
-            disp('Selected clone data store');
+            presenter = encoreui.ui.presenters.CloneDataStorePresenter();
+            presenter.goWaitStop();
         end
         
         function onViewSelectedAddLocalDataStore(obj, ~, ~)
