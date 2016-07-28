@@ -20,6 +20,9 @@ classdef MainPresenter < appbox.Presenter
             bind@appbox.Presenter(obj);
             
             v = obj.view;
+            obj.addListener(v, 'CloneDataStore', @obj.onViewSelectedCloneDataStore);
+            obj.addListener(v, 'AddLocalDataStore', @obj.onViewSelectedAddLocalDataStore);
+            obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
@@ -29,6 +32,21 @@ classdef MainPresenter < appbox.Presenter
     end
     
     methods (Access = private)
+        
+        function onViewSelectedCloneDataStore(obj, ~, ~)
+            disp('Selected clone data store');
+        end
+        
+        function onViewSelectedAddLocalDataStore(obj, ~, ~)
+            path = obj.view.showGetFile('Data Store Location');
+            if isempty(path)
+                return;
+            end
+        end
+        
+        function onViewSelectedExit(obj, ~, ~)
+            obj.stop();
+        end
         
         function onViewSelectedConfigureOptions(obj, ~, ~)
             options = [];

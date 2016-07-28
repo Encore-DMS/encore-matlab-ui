@@ -1,6 +1,9 @@
 classdef MainView < appbox.View
     
     events
+        CloneDataStore
+        AddLocalDataStore
+        Exit
         ConfigureOptions
         ShowDocumentation
         ShowUserGroup
@@ -26,6 +29,16 @@ classdef MainView < appbox.View
             % File menu.
             obj.fileMenu.root = uimenu(obj.figureHandle, ...
                 'Label', 'File');
+            obj.fileMenu.replicateDataStore = uimenu(obj.fileMenu.root, ...
+                'Label', 'Clone Data Store...', ...
+                'Callback', @(h,d)notify(obj, 'CloneDataStore'));
+            obj.fileMenu.addLocalDataStore = uimenu(obj.fileMenu.root, ...
+                'Label', 'Add Local Data Store...', ...
+                'Callback', @(h,d)notify(obj, 'AddLocalDataStore'));
+            obj.fileMenu.exit = uimenu(obj.fileMenu.root, ...
+                'Label', 'Exit', ...
+                'Separator', 'on', ...
+                'Callback', @(h,d)notify(obj, 'Exit'));
             
             % Configure menu.
             obj.configureMenu.root = uimenu(obj.figureHandle, ...
@@ -63,7 +76,7 @@ classdef MainView < appbox.View
                 'Parent', mainLayout, ...
                 'Padding', 11);
             
-            set(mainLayout, 'Widths', [-1 -2]);
+            set(mainLayout, 'Widths', [200 -1]);
         end
         
     end
