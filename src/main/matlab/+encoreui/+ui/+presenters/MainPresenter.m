@@ -14,5 +14,44 @@ classdef MainPresenter < appbox.Presenter
         
     end
     
+    methods (Access = protected)
+        
+        function bind(obj)
+            bind@appbox.Presenter(obj);
+            
+            v = obj.view;
+            obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
+            obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
+            obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
+            obj.addListener(v, 'ShowAbout', @obj.onViewSelectedShowAbout);
+        end
+        
+    end
+    
+    methods (Access = private)
+        
+        function onViewSelectedConfigureOptions(obj, ~, ~)
+            disp('Selected configure options');
+        end
+        
+        function onViewSelectedShowDocumentation(obj, ~, ~)
+            obj.view.showWeb(encoreui.app.App.documentationUrl, '-helpbrowser');
+        end
+
+        function onViewSelectedShowUserGroup(obj, ~, ~)
+            obj.view.showWeb(encoreui.app.App.userGroupUrl);
+        end
+
+        function onViewSelectedShowAbout(obj, ~, ~)
+            message = sprintf('%s %s\nVersion %s\n%s', ...
+                encoreui.app.App.name, ...
+                encoreui.app.App.description, ...
+                encoreui.app.App.version, ...
+                [char(169) ' ' datestr(now, 'yyyy') ' ' encoreui.app.App.owner]);
+            obj.view.showMessage(message, ['About ' encoreui.app.App.name]);
+        end
+        
+    end
+    
 end
 
