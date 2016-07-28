@@ -14,7 +14,6 @@ classdef MainView < appbox.View
         fileMenu
         configureMenu
         helpMenu
-        toolbar
     end
     
     methods
@@ -60,8 +59,6 @@ classdef MainView < appbox.View
                 'Label', ['About ' encoreui.app.App.name], ...
                 'Separator', 'on', ...
                 'Callback', @(h,d)notify(obj, 'ShowAbout'));
-            
-            obj.toolbar = Menu(obj.figureHandle);
             
             mainLayout = uix.HBoxFlex( ...
                 'Parent', obj.figureHandle, ...
