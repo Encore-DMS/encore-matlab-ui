@@ -1,5 +1,5 @@
 function main()
-    busy = appbox.BusyPresenter('This may take a moment.', 'Starting...');
+    busy = appbox.BusyPresenter('Starting...');
     busy.go();
     deleteBusy = onCleanup(@()delete(busy));
 
