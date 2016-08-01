@@ -23,7 +23,7 @@ classdef MainView < appbox.View
             
             set(obj.figureHandle, ...
                 'Name', 'Encore', ...
-                'Position', screenCenter(1024, 768));
+                'Position', screenCenter(hpix(1024/11), vpix(768/16)));
             
             % File menu.
             obj.fileMenu.root = uimenu(obj.figureHandle, ...
@@ -73,7 +73,7 @@ classdef MainView < appbox.View
                 'Parent', mainLayout, ...
                 'Padding', 11);
             
-            set(mainLayout, 'Widths', [200 -1]);
+            set(mainLayout, 'Widths', [hpix(200/11) -1]);
         end
         
     end

@@ -22,7 +22,7 @@ classdef OptionsView < appbox.View
             
             set(obj.figureHandle, ...
                 'Name', 'Options', ...
-                'Position', screenCenter(500, 300));
+                'Position', screenCenter(hpix(500/11), vpix(300/16)));
             
             mainLayout = uix.VBox( ...
                 'Parent', obj.figureHandle, ...
@@ -73,8 +73,8 @@ classdef OptionsView < appbox.View
                 'Style', 'edit', ...
                 'HorizontalAlignment', 'left');
             set(accountGrid, ...
-                'Widths', [65 -1], ...
-                'Heights', [23 23]);
+                'Widths', [hpix(65/11) -1], ...
+                'Heights', [vpix(23/16) vpix(23/16)]);
             
             set(obj.detailCardPanel, 'Selection', 1);
 
@@ -82,7 +82,7 @@ classdef OptionsView < appbox.View
 
             set(detailLayout, 'Heights', [-1 1]);
 
-            set(optionsLayout, 'Widths', [120 -1]);
+            set(optionsLayout, 'Widths', [hpix(120/11) -1]);
 
             % Save/Default/Cancel controls.
             controlsLayout = uiextras.HBox( ...
@@ -101,9 +101,9 @@ classdef OptionsView < appbox.View
                 'String', 'Cancel', ...
                 'Interruptible', 'off', ...
                 'Callback', @(h,d)notify(obj, 'Cancel'));
-            set(controlsLayout, 'Sizes', [-1 75 75]);
+            set(controlsLayout, 'Sizes', [-1 hpix(75/11) hpix(75/11)]);
 
-            set(mainLayout, 'Heights', [-1 23]);
+            set(mainLayout, 'Heights', [-1 vpix(23/16)]);
 
             % Set OK button to appear as the default button.
             try %#ok<TRYNC>

@@ -17,7 +17,7 @@ classdef CloneDataStoreView < appbox.View
             
             set(obj.figureHandle, ...
                 'Name', 'Clone Data Store', ...
-                'Position', screenCenter(400, 250));
+                'Position', screenCenter(hpix(400/11), vpix(250/16)));
             
             mainLayout = uix.VBox( ...
                 'Parent', obj.figureHandle, ...
@@ -45,9 +45,9 @@ classdef CloneDataStoreView < appbox.View
                 'String', 'Cancel', ...
                 'Interruptible', 'off', ...
                 'Callback', @(h,d)notify(obj, 'Cancel'));
-            set(controlsLayout, 'Widths', [-1 75 75]);
+            set(controlsLayout, 'Widths', [-1 hpix(75/11) hpix(75/11)]);
 
-            set(mainLayout, 'Heights', [-1 23]);
+            set(mainLayout, 'Heights', [-1 vpix(23/16)]);
 
             % Set clone button to appear as the default button.
             try %#ok<TRYNC>
