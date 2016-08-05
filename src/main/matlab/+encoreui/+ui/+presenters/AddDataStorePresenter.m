@@ -1,4 +1,4 @@
-classdef CloneDataStorePresenter < appbox.Presenter
+classdef AddDataStorePresenter < appbox.Presenter
     
     properties (Access = private)
         
@@ -6,9 +6,9 @@ classdef CloneDataStorePresenter < appbox.Presenter
     
     methods
         
-        function obj = CloneDataStorePresenter(view)
+        function obj = AddDataStorePresenter(view)
             if nargin < 1
-                view = encoreui.ui.views.CloneDataStoreView();
+                view = encoreui.ui.views.AddDataStoreView();
             end
             obj = obj@appbox.Presenter(view);
             obj.view.setWindowStyle('modal');
@@ -23,7 +23,7 @@ classdef CloneDataStorePresenter < appbox.Presenter
             
             v = obj.view;
             obj.addListener(v, 'KeyPress', @obj.onViewKeyPress);
-            obj.addListener(v, 'Clone', @obj.onViewSelectedClone);
+            obj.addListener(v, 'Add', @obj.onViewSelectedAdd);
             obj.addListener(v, 'Cancel', @obj.onViewSelectedCancel);
         end
         
@@ -34,13 +34,13 @@ classdef CloneDataStorePresenter < appbox.Presenter
         function onViewKeyPress(obj, ~, event)
             switch event.data.Key
                 case 'return'
-                    obj.onViewSelectedClone();
+                    obj.onViewSelectedAdd();
                 case 'escape'
                     obj.onViewSelectedCancel();
             end
         end
         
-        function onViewSelectedClone(obj, ~, ~)
+        function onViewSelectedAdd(obj, ~, ~)
             obj.stop();
         end
         

@@ -40,14 +40,9 @@ classdef OptionsPresenter < appbox.Presenter
         
         function populateDetails(obj)
             obj.populateGeneralDetails();
-            obj.populateAccountDetails();
         end
         
         function populateGeneralDetails(obj)
-            
-        end
-        
-        function populateAccountDetails(obj)
             
         end
         

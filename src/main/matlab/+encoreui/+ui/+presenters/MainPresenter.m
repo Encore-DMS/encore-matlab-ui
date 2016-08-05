@@ -20,8 +20,7 @@ classdef MainPresenter < appbox.Presenter
             bind@appbox.Presenter(obj);
             
             v = obj.view;
-            obj.addListener(v, 'CloneDataStore', @obj.onViewSelectedCloneDataStore);
-            obj.addListener(v, 'AddLocalDataStore', @obj.onViewSelectedAddLocalDataStore);
+            obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
@@ -33,16 +32,9 @@ classdef MainPresenter < appbox.Presenter
     
     methods (Access = private)
         
-        function onViewSelectedCloneDataStore(obj, ~, ~)
-            presenter = encoreui.ui.presenters.CloneDataStorePresenter();
+        function onViewSelectedAddDataStore(obj, ~, ~)
+            presenter = encoreui.ui.presenters.AddDataStorePresenter();
             presenter.goWaitStop();
-        end
-        
-        function onViewSelectedAddLocalDataStore(obj, ~, ~)
-            path = obj.view.showGetFile('Data Store Location');
-            if isempty(path)
-                return;
-            end
         end
         
         function onViewSelectedExit(obj, ~, ~)
