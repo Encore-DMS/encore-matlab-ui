@@ -1,4 +1,4 @@
-classdef AddDataStoreView < appbox.View
+classdef AddDataSourceView < appbox.View
     
     events
         Add
@@ -20,7 +20,7 @@ classdef AddDataStoreView < appbox.View
             import appbox.*;
             
             set(obj.figureHandle, ...
-                'Name', 'Add Data Store', ...
+                'Name', 'Add Data Source', ...
                 'Position', screenCenter(hpix(330/11), vpix(169/16)));
             
             mainLayout = uix.VBox( ...

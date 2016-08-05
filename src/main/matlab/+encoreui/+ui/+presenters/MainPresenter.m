@@ -20,7 +20,7 @@ classdef MainPresenter < appbox.Presenter
             bind@appbox.Presenter(obj);
             
             v = obj.view;
-            obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
+            obj.addListener(v, 'AddDataSource', @obj.onViewSelectedAddDataSource);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
@@ -32,8 +32,8 @@ classdef MainPresenter < appbox.Presenter
     
     methods (Access = private)
         
-        function onViewSelectedAddDataStore(obj, ~, ~)
-            presenter = encoreui.ui.presenters.AddDataStorePresenter();
+        function onViewSelectedAddDataSource(obj, ~, ~)
+            presenter = encoreui.ui.presenters.AddDataSourcePresenter();
             presenter.goWaitStop();
         end
         

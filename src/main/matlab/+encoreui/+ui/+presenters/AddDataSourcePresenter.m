@@ -1,4 +1,4 @@
-classdef AddDataStorePresenter < appbox.Presenter
+classdef AddDataSourcePresenter < appbox.Presenter
     
     properties (Access = private)
         
@@ -6,9 +6,9 @@ classdef AddDataStorePresenter < appbox.Presenter
     
     methods
         
-        function obj = AddDataStorePresenter(view)
+        function obj = AddDataSourcePresenter(view)
             if nargin < 1
-                view = encoreui.ui.views.AddDataStoreView();
+                view = encoreui.ui.views.AddDataSourceView();
             end
             obj = obj@appbox.Presenter(view);
             obj.view.setWindowStyle('modal');
