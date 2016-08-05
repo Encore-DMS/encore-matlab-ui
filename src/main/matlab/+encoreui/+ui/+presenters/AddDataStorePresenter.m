@@ -18,6 +18,10 @@ classdef AddDataStorePresenter < appbox.Presenter
     
     methods (Access = protected)
         
+        function didGo(obj)
+            obj.view.requestHostFocus();
+        end
+        
         function bind(obj)
             bind@appbox.Presenter(obj);
             
@@ -41,6 +45,18 @@ classdef AddDataStorePresenter < appbox.Presenter
         end
         
         function onViewSelectedAdd(obj, ~, ~)
+            obj.view.update();
+            
+            host = obj.view.getHost();
+            port = str2double(obj.view.getPort());
+            user = obj.view.getUser();
+            password = obj.view.getPassword();
+            
+            disp(host);
+            disp(port);
+            disp(user);
+            disp(password);
+            
             obj.stop();
         end
         
