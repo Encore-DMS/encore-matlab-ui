@@ -18,6 +18,7 @@ classdef MainView < appbox.View
         detailCardPanel
         emptyCard
         dataSourceCard
+        workingCopyCard
     end
     
     methods
@@ -101,6 +102,10 @@ classdef MainView < appbox.View
             
             % Data source card.
             dataSourceLayout = uix.VBox( ...
+                'Parent', obj.detailCardPanel);
+            
+            % Working copy card.
+            workingCopyLayout = uix.VBox( ...
                 'Parent', obj.detailCardPanel);
             
             set(mainLayout, 'Widths', [hpix(200/11) -1]);
