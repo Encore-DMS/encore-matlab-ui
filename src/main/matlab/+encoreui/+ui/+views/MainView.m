@@ -123,7 +123,7 @@ classdef MainView < appbox.View
                 'Icon', encoreui.app.App.getResource('icons', 'sync.png'), ...
                 'String', 'Sync', ...
                 'Callback', @(h,d)notify(obj, 'SyncDataSource'));
-            set(dataSourceToolbarLayout, 'Widths', [hpix(75/11) -1 hpix(75/11)]);
+            set(dataSourceToolbarLayout, 'Widths', [hpix(84/11) -1 hpix(84/11)]);
             
             Separator('Parent', dataSourceLayout);
             
