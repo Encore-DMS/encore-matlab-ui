@@ -1,15 +1,22 @@
 classdef MainPresenter < appbox.Presenter
     
     properties
+        log
+        dataSourceService
+        configurationService
     end
     
     methods
         
-        function obj = MainPresenter(view)
-            if nargin < 1
+        function obj = MainPresenter(dataSourceService, configurationService, view)
+            if nargin < 3
                 view = encoreui.ui.views.MainView();
             end
             obj = obj@appbox.Presenter(view);
+            
+            obj.log = log4m.LogManager.getLogger(class(obj));
+            obj.dataSourceService = dataSourceService;
+            obj.configurationService = configurationService;
         end
         
     end
@@ -33,7 +40,7 @@ classdef MainPresenter < appbox.Presenter
     methods (Access = private)
         
         function onViewSelectedAddDataSource(obj, ~, ~)
-            presenter = encoreui.ui.presenters.AddDataSourcePresenter();
+            presenter = encoreui.ui.presenters.AddDataSourcePresenter(obj.dataSourceService);
             presenter.goWaitStop();
         end
         
@@ -42,7 +49,7 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function onViewSelectedConfigureOptions(obj, ~, ~)
-            options = [];
+            options = obj.configurationService.getOptions();
             presenter = encoreui.ui.presenters.OptionsPresenter(options);
             presenter.goWaitStop();
         end

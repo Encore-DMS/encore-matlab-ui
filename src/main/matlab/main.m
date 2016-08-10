@@ -1,4 +1,6 @@
 function main()
+    import encoreui.app.*;
+
     busy = appbox.BusyPresenter('Starting...');
     busy.go();
     deleteBusy = onCleanup(@()delete(busy));
@@ -18,8 +20,14 @@ function main()
             return;
         end
     end
+    
+    options = encoreui.app.Options.getDefault();
+    session = Session(options);
+    
+    dataSourceService = DataSourceService(session);
+    configurationService = ConfigurationService(session);
 
-    presenter = encoreui.ui.presenters.MainPresenter();
+    presenter = encoreui.ui.presenters.MainPresenter(dataSourceService, configurationService);
 
     delete(busy);
     presenter.go();

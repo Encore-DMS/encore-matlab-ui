@@ -6,8 +6,7 @@ classdef AddDataSourceView < appbox.View
     end
     
     properties (Access = private)
-        hostField
-        portField
+        urlField
         userField
         passwordField
         addButton
@@ -21,7 +20,7 @@ classdef AddDataSourceView < appbox.View
             
             set(obj.figureHandle, ...
                 'Name', 'Add Data Source', ...
-                'Position', screenCenter(hpix(330/11), vpix(169/16)));
+                'Position', screenCenter(hpix(330/11), vpix(139/16)));
             
             mainLayout = uix.VBox( ...
                 'Parent', obj.figureHandle, ...
@@ -33,21 +32,14 @@ classdef AddDataSourceView < appbox.View
                 'Spacing', 7);
             Label( ...
                 'Parent', storeLayout, ...
-                'String', 'Host:');
-            Label( ...
-                'Parent', storeLayout, ...
-                'String', 'Port:');
+                'String', 'URL:');
             Label( ...
                 'Parent', storeLayout, ...
                 'String', 'User:');
             Label( ...
                 'Parent', storeLayout, ...
                 'String', 'Password:');
-            obj.hostField = uicontrol( ...
-                'Parent', storeLayout, ...
-                'Style', 'edit', ...
-                'HorizontalAlignment', 'left');
-            obj.portField = uicontrol( ...
+            obj.urlField = uicontrol( ...
                 'Parent', storeLayout, ...
                 'Style', 'edit', ...
                 'HorizontalAlignment', 'left');
@@ -59,7 +51,7 @@ classdef AddDataSourceView < appbox.View
                 'Parent', storeLayout);
             set(storeLayout, ...
                 'Widths', [hpix(60/11) -1], ...
-                'Heights', [vpix(23/16) vpix(23/16) vpix(23/16) vpix(23/16)]);
+                'Heights', [vpix(23/16) vpix(23/16) vpix(23/16)]);
             
             % Add/Cancel controls.
             controlsLayout = uix.HBox( ...
@@ -89,17 +81,13 @@ classdef AddDataSourceView < appbox.View
             end
         end
         
-        function h = getHost(obj)
-            h = get(obj.hostField, 'String');
+        function u = getUrl(obj)
+            u = get(obj.urlField, 'String');
         end
         
-        function requestHostFocus(obj)
+        function requestUrlFocus(obj)
             obj.update();
-            uicontrol(obj.hostField);
-        end
-        
-        function p = getPort(obj)
-            p = get(obj.portField, 'String');
+            uicontrol(obj.urlField);
         end
         
         function u = getUser(obj)

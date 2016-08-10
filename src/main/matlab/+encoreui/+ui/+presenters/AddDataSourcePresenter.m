@@ -1,17 +1,21 @@
 classdef AddDataSourcePresenter < appbox.Presenter
     
     properties (Access = private)
-        
+        log
+        dataSourceService
     end
     
     methods
         
-        function obj = AddDataSourcePresenter(view)
-            if nargin < 1
+        function obj = AddDataSourcePresenter(dataSourceService, view)
+            if nargin < 2
                 view = encoreui.ui.views.AddDataSourceView();
             end
             obj = obj@appbox.Presenter(view);
             obj.view.setWindowStyle('modal');
+            
+            obj.log = log4m.LogManager.getLogger(class(obj));
+            obj.dataSourceService = dataSourceService;
         end
         
     end
@@ -19,7 +23,7 @@ classdef AddDataSourcePresenter < appbox.Presenter
     methods (Access = protected)
         
         function didGo(obj)
-            obj.view.requestHostFocus();
+            obj.view.requestUrlFocus();
         end
         
         function bind(obj)
@@ -47,16 +51,18 @@ classdef AddDataSourcePresenter < appbox.Presenter
         function onViewSelectedAdd(obj, ~, ~)
             obj.view.update();
             
-            host = obj.view.getHost();
-            port = str2double(obj.view.getPort());
+            url = obj.view.getUrl();
             user = obj.view.getUser();
             password = obj.view.getPassword();
+            try
+                source = obj.dataSourceService.addDataSource(url, user, password);
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
             
-            disp(host);
-            disp(port);
-            disp(user);
-            disp(password);
-            
+            obj.result = source;
             obj.stop();
         end
         

@@ -18,7 +18,6 @@ classdef MainView < appbox.View
         detailCardPanel
         emptyCard
         dataSourceCard
-        workingCopyCard
     end
     
     methods
@@ -104,11 +103,17 @@ classdef MainView < appbox.View
             dataSourceLayout = uix.VBox( ...
                 'Parent', obj.detailCardPanel);
             
-            % Working copy card.
-            workingCopyLayout = uix.VBox( ...
-                'Parent', obj.detailCardPanel);
-            
             set(mainLayout, 'Widths', [hpix(200/11) -1]);
+        end
+        
+        function n = addDataSourceNode(obj, name, entity)
+            value.entity = entity;
+            value.type = encoreui.ui.views.DataSourceNodeType.DATA_SOURCE;
+            n = uiextras.jTree.TreeNode( ...
+                'Parent', obj.dataSourceTree.Root, ...
+                'Name', name, ...
+                'Value', value);
+            n.setIcon(encoreui.app.App.getResource('icons', 'data_source.png'));
         end
         
     end
