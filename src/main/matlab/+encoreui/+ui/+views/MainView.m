@@ -8,6 +8,9 @@ classdef MainView < appbox.View
         ShowUserGroup
         ShowAbout
         SelectedDataSourceNode
+        SelectedEntityNodes
+        QueryDataSource
+        SyncDataSource
     end
     
     properties (Access = private)
@@ -18,6 +21,11 @@ classdef MainView < appbox.View
         detailCardPanel
         emptyCard
         dataSourceCard
+    end
+    
+    properties (Constant)
+        EMPTY_CARD          = 1
+        DATA_SOURCE_CARD    = 2
     end
     
     methods
@@ -80,8 +88,7 @@ classdef MainView < appbox.View
                 'SelectionType', 'single');
             
             detailLayout = uix.VBox( ...
-                'Parent', mainLayout, ...
-                'Padding', 11);
+                'Parent', mainLayout);
             
             obj.detailCardPanel = uix.CardPanel( ...
                 'Parent', detailLayout);
@@ -103,7 +110,64 @@ classdef MainView < appbox.View
             dataSourceLayout = uix.VBox( ...
                 'Parent', obj.detailCardPanel);
             
-            set(mainLayout, 'Widths', [hpix(200/11) -1]);
+            dataSourceToolbarLayout = uix.HBox( ...
+                'Parent', dataSourceLayout);
+            obj.dataSourceCard.queryButton = Button( ...
+                'Parent', dataSourceToolbarLayout, ...
+                'Icon', encoreui.app.App.getResource('icons', 'query.png'), ...
+                'String', 'Query', ...
+                'Callback', @(h,d)notify(obj, 'QueryDataSource'));
+            uix.Empty('Parent', dataSourceToolbarLayout);
+            obj.dataSourceCard.syncButton = Button( ...
+                'Parent', dataSourceToolbarLayout, ...
+                'Icon', encoreui.app.App.getResource('icons', 'sync.png'), ...
+                'String', 'Sync', ...
+                'Callback', @(h,d)notify(obj, 'SyncDataSource'));
+            set(dataSourceToolbarLayout, 'Widths', [hpix(75/11) -1 hpix(75/11)]);
+            
+            Separator('Parent', dataSourceLayout);
+            
+            dataSourceMasterDetailLayout = uix.HBoxFlex( ...
+                'Parent', dataSourceLayout, ...
+                'DividerMarkings', 'off', ...
+                'DividerBackgroundColor', [160/255 160/255 160/255], ...
+                'Spacing', 1);
+            
+            dataSourceMasterLayout = uix.HBox( ...
+                'Parent', dataSourceMasterDetailLayout);
+            
+            obj.dataSourceCard.entityTree = uiextras.jTree.Tree( ...
+                'Parent', dataSourceMasterLayout, ...
+                'FontName', get(obj.figureHandle, 'DefaultUicontrolFontName'), ...
+                'FontSize', get(obj.figureHandle, 'DefaultUicontrolFontSize'), ...
+                'BorderType', 'none', ...
+                'RootVisible', false, ...
+                'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedEntityNodes'), ...
+                'SelectionType', 'discontiguous');
+            
+            dataSourceDetailLayout = uix.VBox( ...
+                'Parent', dataSourceMasterDetailLayout, ...
+                'Padding', 11);
+            
+            set(dataSourceMasterDetailLayout, 'Widths', [-1 -2]);
+            
+            set(dataSourceLayout, 'Heights', [vpix(26/16) 1 -1]);
+            
+            obj.setCardSelection(obj.EMPTY_CARD);
+            
+            set(mainLayout, 'Widths', [-1 -4]);
+        end
+        
+        function show(obj)
+            show@appbox.View(obj);
+            
+            % FIXME: This is needed to correct the font on Buttons
+            set(obj.dataSourceCard.queryButton, 'String', get(obj.dataSourceCard.queryButton, 'String'));
+            set(obj.dataSourceCard.syncButton, 'String', get(obj.dataSourceCard.syncButton, 'String'));
+        end
+        
+        function setCardSelection(obj, index)
+            set(obj.detailCardPanel, 'Selection', index);
         end
         
         function n = getDataSourceRootNode(obj)
@@ -118,6 +182,24 @@ classdef MainView < appbox.View
                 'Name', name, ...
                 'Value', value);
             n.setIcon(encoreui.app.App.getResource('icons', 'data_source.png'));
+        end
+        
+        function n = getSelectedDataSourceNode(obj)
+            n = appbox.firstOrElse(obj.dataSourceTree.SelectedNodes, []);
+        end
+        
+        function e = getNodeEntity(obj, node)
+            v = get(node, 'Value');
+            e = v.entity;
+        end
+        
+        function t = getNodeType(obj, node)
+            v = get(node, 'Value');
+            t = v.type;
+        end
+        
+        function setQueryString(obj, s)
+            obj.dataSourceCard.queryButton.String = s;
         end
         
     end

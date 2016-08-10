@@ -33,6 +33,9 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
             obj.addListener(v, 'ShowAbout', @obj.onViewSelectedShowAbout);
+            obj.addListener(v, 'SelectedDataSourceNode', @obj.onViewSelectedDataSourceNode);
+            obj.addListener(v, 'QueryDataSource', @obj.onViewSelectedQueryDataSource);
+            obj.addListener(v, 'SyncDataSource', @obj.onViewSelectedSyncDataSource);
             
             d = obj.dataSourceService;
             obj.addListener(d, 'AddedDataSource', @obj.onServiceAddedDataSource);
@@ -56,6 +59,28 @@ classdef MainPresenter < appbox.Presenter
             parent = obj.view.getDataSourceRootNode();
             
             n = obj.view.addDataSourceNode(parent, source.url, source);
+        end
+        
+        function onViewSelectedDataSourceNode(obj, ~, ~)
+            source = obj.getSelectedDataSource();
+            obj.populateDetailsForDataSource(source);
+        end
+        
+        function populateDetailsForDataSource(obj, source)
+            obj.view.setCardSelection(obj.view.DATA_SOURCE_CARD);
+        end
+        
+        function onViewSelectedQueryDataSource(obj, ~, ~)
+            disp('Selected query data source');
+        end
+        
+        function onViewSelectedSyncDataSource(obj, ~, ~)
+            disp('Selected sync data source');
+        end
+        
+        function s = getSelectedDataSource(obj)
+            node = obj.view.getSelectedDataSourceNode();
+            s = obj.view.getNodeEntity(node);
         end
         
         function onViewSelectedExit(obj, ~, ~)
