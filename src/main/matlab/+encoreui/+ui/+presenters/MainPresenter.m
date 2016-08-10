@@ -33,6 +33,9 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
             obj.addListener(v, 'ShowAbout', @obj.onViewSelectedShowAbout);
+            
+            d = obj.dataSourceService;
+            obj.addListener(d, 'AddedDataSource', @obj.onServiceAddedDataSource);
         end
         
     end
@@ -42,6 +45,17 @@ classdef MainPresenter < appbox.Presenter
         function onViewSelectedAddDataSource(obj, ~, ~)
             presenter = encoreui.ui.presenters.AddDataSourcePresenter(obj.dataSourceService);
             presenter.goWaitStop();
+        end
+        
+        function onServiceAddedDataSource(obj, ~, event)
+            source = event.data;
+            node = obj.addDataSourceNode(source);
+        end
+        
+        function n = addDataSourceNode(obj, source)
+            parent = obj.view.getDataSourceRootNode();
+            
+            n = obj.view.addDataSourceNode(parent, source.url, source);
         end
         
         function onViewSelectedExit(obj, ~, ~)

@@ -1352,8 +1352,8 @@ classdef Table < hgsetget
             %http://stackoverflow.com/questions/6257784/java-font-size-vs-html-font-size
             % Java font is in pixels, and assumes 72dpi. Windows is
             % typically 96 and up, depending on display settings.
-            dpi = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
-            value = (value * 72 / dpi);
+            %dpi = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+            %value = (value * 72 / dpi);
             
         end % get.FontSize
         
@@ -1363,8 +1363,8 @@ classdef Table < hgsetget
             jFont = obj.JTable.getFont();
             
             % Convert value from points to pixels
-            dpi = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
-            value = round(value * dpi / 72);
+            %dpi = java.awt.Toolkit.getDefaultToolkit().getScreenResolution();
+            %value = round(value * dpi / 72);
             
             % Create a new Java font
             jFont = javax.swing.plaf.FontUIResource(jFont.getName(),...

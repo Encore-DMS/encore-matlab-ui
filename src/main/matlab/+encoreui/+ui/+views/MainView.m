@@ -106,11 +106,15 @@ classdef MainView < appbox.View
             set(mainLayout, 'Widths', [hpix(200/11) -1]);
         end
         
-        function n = addDataSourceNode(obj, name, entity)
+        function n = getDataSourceRootNode(obj)
+            n = obj.dataSourceTree.Root;
+        end
+        
+        function n = addDataSourceNode(obj, parent, name, entity)
             value.entity = entity;
             value.type = encoreui.ui.views.DataSourceNodeType.DATA_SOURCE;
             n = uiextras.jTree.TreeNode( ...
-                'Parent', obj.dataSourceTree.Root, ...
+                'Parent', parent, ...
                 'Name', name, ...
                 'Value', value);
             n.setIcon(encoreui.app.App.getResource('icons', 'data_source.png'));

@@ -14,8 +14,9 @@ classdef DataSourceService < handle
             obj.session = session;
         end
         
-        function s = addDataSource(obj, url, user, password)
-            s = [];
+        function d = addDataSource(obj, url, user, password)
+            d = encore.core.DataSource(url);
+            notify(obj, 'AddedDataSource', encoreui.app.AppEventData(d));
         end
         
     end
