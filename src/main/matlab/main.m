@@ -21,6 +21,8 @@ function main()
         end
     end
     
+    addJavaJars({'UIExtrasComboBox.jar', 'UIExtrasTable.jar', 'UIExtrasTable2.jar', 'UIExtrasTree.jar', 'UIExtrasPropertyGrid.jar'});
+    
     options = encoreui.app.Options.getDefault();
     session = Session(options);
     
@@ -31,4 +33,16 @@ function main()
 
     delete(busy);
     presenter.go();
+end
+
+function addJavaJars(jars)
+    for i = 1:numel(jars)
+        path = which(jars{i});
+        if isempty(path)
+            error(['Cannot find ' jars{i} ' on the matlab path']);
+        end
+        if ~any(strcmpi(javaclasspath, path))
+            javaaddpath(path);
+        end
+    end
 end
