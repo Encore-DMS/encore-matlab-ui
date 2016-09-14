@@ -1,5 +1,7 @@
 function main()
     import encoreui.app.*;
+    
+    uix.tracking('off');
 
     busy = appbox.BusyPresenter('Starting...');
     busy.go();
