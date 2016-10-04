@@ -107,7 +107,8 @@ classdef MainPresenter < appbox.Presenter
                 encoreui.app.App.description, ...
                 encoreui.app.App.version, ...
                 [char(169) ' ' datestr(now, 'yyyy') ' ' encoreui.app.App.owner]);
-            obj.view.showMessage(message, ['About ' encoreui.app.App.name]);
+            obj.view.showMessage(message, ['About ' encoreui.app.App.name], ...
+                'width', 250);
         end
         
     end

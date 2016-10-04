@@ -17,7 +17,7 @@ function main()
         info = p.result;
         if ~isempty(info)
             msg = 'The update is complete. You must run ''clear classes'' or restart MATLAB before Encore will launch again.';
-            appbox.MessagePresenter(msg, 'Update Complete', 'OK', [], [], 1).goWaitStop();
+            appbox.MessagePresenter(msg, 'Update Complete', 'OK').goWaitStop();
             disp(msg);
             return;
         end
