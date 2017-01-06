@@ -1,7 +1,7 @@
 classdef App < handle
 
     methods (Static)
-        
+
         function n = name()
             n = 'Encore';
         end
@@ -17,9 +17,9 @@ classdef App < handle
         function o = owner()
             o = 'Encore-DMS';
         end
-        
+
         function u = documentationUrl()
-            u = encoreui.app.App.getResource('docs', 'Home.html');
+            u = encoreui.app.App.getResource('docs', 'README.html');
         end
 
         function u = userGroupUrl()
