@@ -1,6 +1,6 @@
 function main()
     import encoreui.app.*;
-    
+
     uix.tracking('off');
 
     busy = appbox.BusyPresenter('Starting...');
@@ -22,16 +22,16 @@ function main()
             return;
         end
     end
-    
-    addJavaJars({'UIExtrasComboBox.jar', 'UIExtrasTable.jar', 'UIExtrasTable2.jar', 'UIExtrasTree.jar', 'UIExtrasPropertyGrid.jar'});
-    
+
+    addJavaJars({'encore-core.jar', 'UIExtrasComboBox.jar', 'UIExtrasTable.jar', 'UIExtrasTable2.jar', 'UIExtrasTree.jar', 'UIExtrasPropertyGrid.jar'});
+
     options = encoreui.app.Options.getDefault();
     session = Session(options);
-    
-    dataSourceService = DataSourceService(session);
+
+    dataStoreService = DataStoreService(session);
     configurationService = ConfigurationService(session);
 
-    presenter = encoreui.ui.presenters.MainPresenter(dataSourceService, configurationService);
+    presenter = encoreui.ui.presenters.MainPresenter(dataStoreService, configurationService);
 
     delete(busy);
     presenter.go();

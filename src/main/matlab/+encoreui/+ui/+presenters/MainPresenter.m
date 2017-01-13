@@ -1,98 +1,98 @@
 classdef MainPresenter < appbox.Presenter
-    
+
     properties
         log
-        dataSourceService
+        dataStoreService
         configurationService
     end
-    
+
     methods
-        
-        function obj = MainPresenter(dataSourceService, configurationService, view)
+
+        function obj = MainPresenter(dataStoreService, configurationService, view)
             if nargin < 3
                 view = encoreui.ui.views.MainView();
             end
             obj = obj@appbox.Presenter(view);
-            
+
             obj.log = log4m.LogManager.getLogger(class(obj));
-            obj.dataSourceService = dataSourceService;
+            obj.dataStoreService = dataStoreService;
             obj.configurationService = configurationService;
         end
-        
+
     end
-    
+
     methods (Access = protected)
-        
+
         function bind(obj)
             bind@appbox.Presenter(obj);
-            
+
             v = obj.view;
-            obj.addListener(v, 'AddDataSource', @obj.onViewSelectedAddDataSource);
+            obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
             obj.addListener(v, 'ShowAbout', @obj.onViewSelectedShowAbout);
-            obj.addListener(v, 'SelectedDataSourceNode', @obj.onViewSelectedDataSourceNode);
-            obj.addListener(v, 'QueryDataSource', @obj.onViewSelectedQueryDataSource);
-            obj.addListener(v, 'SyncDataSource', @obj.onViewSelectedSyncDataSource);
-            
-            d = obj.dataSourceService;
-            obj.addListener(d, 'AddedDataSource', @obj.onServiceAddedDataSource);
+            obj.addListener(v, 'SelectedDataStoreNode', @obj.onViewSelectedDataStoreNode);
+            obj.addListener(v, 'QueryDataStore', @obj.onViewSelectedQueryDataStore);
+            obj.addListener(v, 'SyncDataStore', @obj.onViewSelectedSyncDataStore);
+
+            d = obj.dataStoreService;
+            obj.addListener(d, 'AddedDataStore', @obj.onServiceAddedDataStore);
         end
-        
+
     end
-    
+
     methods (Access = private)
-        
-        function onViewSelectedAddDataSource(obj, ~, ~)
-            presenter = encoreui.ui.presenters.AddDataSourcePresenter(obj.dataSourceService);
+
+        function onViewSelectedAddDataStore(obj, ~, ~)
+            presenter = encoreui.ui.presenters.AddDataStorePresenter(obj.dataStoreService);
             presenter.goWaitStop();
         end
-        
-        function onServiceAddedDataSource(obj, ~, event)
-            source = event.data;
-            node = obj.addDataSourceNode(source);
+
+        function onServiceAddedDataStore(obj, ~, event)
+            store = event.data;
+            node = obj.addDataStoreNode(store);
         end
-        
-        function n = addDataSourceNode(obj, source)
-            parent = obj.view.getDataSourceRootNode();
-            
-            n = obj.view.addDataSourceNode(parent, source.url, source);
+
+        function n = addDataStoreNode(obj, store)
+            parent = obj.view.getDataStoreRootNode();
+
+            n = obj.view.addDataStoreNode(parent, store.url, store);
         end
-        
-        function onViewSelectedDataSourceNode(obj, ~, ~)
-            source = obj.getSelectedDataSource();
-            obj.populateDetailsForDataSource(source);
+
+        function onViewSelectedDataStoreNode(obj, ~, ~)
+            store = obj.getSelectedDataStore();
+            obj.populateDetailsForDataStore(store);
         end
-        
-        function populateDetailsForDataSource(obj, source)
-            obj.view.setCardSelection(obj.view.DATA_SOURCE_CARD);
+
+        function populateDetailsForDataStore(obj, store)
+            obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
         end
-        
-        function onViewSelectedQueryDataSource(obj, ~, ~)
-            disp('Selected query data source');
+
+        function onViewSelectedQueryDataStore(obj, ~, ~)
+            disp('Selected query data store');
         end
-        
-        function onViewSelectedSyncDataSource(obj, ~, ~)
-            disp('Selected sync data source');
+
+        function onViewSelectedSyncDataStore(obj, ~, ~)
+            disp('Selected sync data store');
         end
-        
-        function s = getSelectedDataSource(obj)
-            node = obj.view.getSelectedDataSourceNode();
+
+        function s = getSelectedDataStore(obj)
+            node = obj.view.getSelectedDataStoreNode();
             s = obj.view.getNodeEntity(node);
         end
-        
+
         function onViewSelectedExit(obj, ~, ~)
             obj.stop();
         end
-        
+
         function onViewSelectedConfigureOptions(obj, ~, ~)
             options = obj.configurationService.getOptions();
             presenter = encoreui.ui.presenters.OptionsPresenter(options);
             presenter.goWaitStop();
         end
-        
+
         function onViewSelectedShowDocumentation(obj, ~, ~)
             obj.view.showWeb(encoreui.app.App.documentationUrl, '-helpbrowser');
         end
@@ -110,8 +110,7 @@ classdef MainPresenter < appbox.Presenter
             obj.view.showMessage(message, ['About ' encoreui.app.App.name], ...
                 'width', 250);
         end
-        
-    end
-    
-end
 
+    end
+
+end
