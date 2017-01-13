@@ -1,10 +1,10 @@
-classdef AddDataSourceView < appbox.View
-    
+classdef AddDataStoreView < appbox.View
+
     events
         Add
         Cancel
     end
-    
+
     properties (Access = private)
         urlField
         userField
@@ -12,21 +12,22 @@ classdef AddDataSourceView < appbox.View
         addButton
         cancelButton
     end
-    
+
     methods
-        
+
         function createUi(obj)
             import appbox.*;
-            
+
             set(obj.figureHandle, ...
-                'Name', 'Add Data Source', ...
-                'Position', screenCenter(hpix(330/11), vpix(139/16)));
-            
+                'Name', 'Add Data Store', ...
+                'Position', screenCenter(hpix(330/11), vpix(139/16)), ...
+                'Resize', 'off');
+
             mainLayout = uix.VBox( ...
                 'Parent', obj.figureHandle, ...
                 'Padding', 11, ...
                 'Spacing', 11);
-            
+
             storeLayout = uix.Grid( ...
                 'Parent', mainLayout, ...
                 'Spacing', 7);
@@ -52,7 +53,7 @@ classdef AddDataSourceView < appbox.View
             set(storeLayout, ...
                 'Widths', [hpix(60/11) -1], ...
                 'Heights', [vpix(23/16) vpix(23/16) vpix(23/16)]);
-            
+
             % Add/Cancel controls.
             controlsLayout = uix.HBox( ...
                 'Parent', mainLayout, ...
@@ -80,25 +81,24 @@ classdef AddDataSourceView < appbox.View
                 h.setDefaultButton(obj.cloneButton);
             end
         end
-        
+
         function u = getUrl(obj)
             u = get(obj.urlField, 'String');
         end
-        
+
         function requestUrlFocus(obj)
             obj.update();
             uicontrol(obj.urlField);
         end
-        
+
         function u = getUser(obj)
             u = get(obj.userField, 'String');
         end
-        
+
         function p = getPassword(obj)
             p = get(obj.passwordField, 'String');
         end
-        
-    end
-    
-end
 
+    end
+
+end

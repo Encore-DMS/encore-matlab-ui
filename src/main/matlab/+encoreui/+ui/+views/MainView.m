@@ -1,60 +1,60 @@
 classdef MainView < appbox.View
-    
+
     events
-        AddDataSource
+        AddDataStore
         Exit
         ConfigureOptions
         ShowDocumentation
         ShowUserGroup
         ShowAbout
-        SelectedDataSourceNode
+        SelectedDataStoreNode
         SelectedEntityNodes
-        QueryDataSource
-        SyncDataSource
+        QueryDataStore
+        SyncDataStore
     end
-    
+
     properties (Access = private)
         fileMenu
         configureMenu
         helpMenu
-        dataSourceTree
+        dataStoreTree
         detailCardPanel
         emptyCard
-        dataSourceCard
+        dataStoreCard
     end
-    
+
     properties (Constant)
         EMPTY_CARD          = 1
-        DATA_SOURCE_CARD    = 2
+        DATA_STORE_CARD    = 2
     end
-    
+
     methods
-        
+
         function createUi(obj)
             import appbox.*;
-            
+
             set(obj.figureHandle, ...
                 'Name', 'Encore', ...
                 'Position', screenCenter(hpix(1024/11), vpix(768/16)));
-            
+
             % File menu.
             obj.fileMenu.root = uimenu(obj.figureHandle, ...
                 'Label', 'File');
-            obj.fileMenu.addDataSource = uimenu(obj.fileMenu.root, ...
-                'Label', 'Add Data Source...', ...
-                'Callback', @(h,d)notify(obj, 'AddDataSource'));
+            obj.fileMenu.addDataStore = uimenu(obj.fileMenu.root, ...
+                'Label', 'Add Data Store...', ...
+                'Callback', @(h,d)notify(obj, 'AddDataStore'));
             obj.fileMenu.exit = uimenu(obj.fileMenu.root, ...
                 'Label', 'Exit', ...
                 'Separator', 'on', ...
                 'Callback', @(h,d)notify(obj, 'Exit'));
-            
+
             % Configure menu.
             obj.configureMenu.root = uimenu(obj.figureHandle, ...
                 'Label', 'Configure');
             obj.configureMenu.configureOptions = uimenu(obj.configureMenu.root, ...
                 'Label', 'Options', ...
                 'Callback', @(h,d)notify(obj, 'ConfigureOptions'));
-            
+
             % Help menu.
             obj.helpMenu.root = uimenu(obj.figureHandle, ...
                 'Label', 'Help');
@@ -68,31 +68,31 @@ classdef MainView < appbox.View
                 'Label', ['About ' encoreui.app.App.name], ...
                 'Separator', 'on', ...
                 'Callback', @(h,d)notify(obj, 'ShowAbout'));
-            
+
             mainLayout = uix.HBoxFlex( ...
                 'Parent', obj.figureHandle, ...
                 'DividerMarkings', 'off', ...
                 'DividerBackgroundColor', [160/255 160/255 160/255], ...
                 'Spacing', 1);
-            
+
             masterLayout = uix.HBox( ...
                 'Parent', mainLayout);
-            
-            obj.dataSourceTree = uiextras.jTree.Tree( ...
+
+            obj.dataStoreTree = uiextras.jTree.Tree( ...
                 'Parent', masterLayout, ...
                 'FontName', get(obj.figureHandle, 'DefaultUicontrolFontName'), ...
                 'FontSize', get(obj.figureHandle, 'DefaultUicontrolFontSize'), ...
                 'BorderType', 'none', ...
                 'RootVisible', false, ...
-                'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedDataSourceNode'), ...
+                'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedDataStoreNode'), ...
                 'SelectionType', 'single');
-            
+
             detailLayout = uix.VBox( ...
                 'Parent', mainLayout);
-            
+
             obj.detailCardPanel = uix.CardPanel( ...
                 'Parent', detailLayout);
-            
+
             % Empty card.
             emptyLayout = uix.VBox( ...
                 'Parent', obj.detailCardPanel);
@@ -105,104 +105,103 @@ classdef MainView < appbox.View
             set(emptyLayout, ...
                 'Heights', [-1 vpix(23/16) -1], ...
                 'UserData', struct('Height', -1));
-            
-            % Data source card.
-            dataSourceLayout = uix.VBox( ...
+
+            % Data store card.
+            dataStoreLayout = uix.VBox( ...
                 'Parent', obj.detailCardPanel);
-            
-            dataSourceToolbarLayout = uix.HBox( ...
-                'Parent', dataSourceLayout);
-            obj.dataSourceCard.queryButton = Button( ...
-                'Parent', dataSourceToolbarLayout, ...
+
+            dataStoreToolbarLayout = uix.HBox( ...
+                'Parent', dataStoreLayout);
+            obj.dataStoreCard.queryButton = Button( ...
+                'Parent', dataStoreToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'query.png'), ...
                 'String', 'Query', ...
-                'Callback', @(h,d)notify(obj, 'QueryDataSource'));
-            uix.Empty('Parent', dataSourceToolbarLayout);
-            obj.dataSourceCard.syncButton = Button( ...
-                'Parent', dataSourceToolbarLayout, ...
+                'Callback', @(h,d)notify(obj, 'QueryDataStore'));
+            uix.Empty('Parent', dataStoreToolbarLayout);
+            obj.dataStoreCard.syncButton = Button( ...
+                'Parent', dataStoreToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'sync.png'), ...
                 'String', 'Sync', ...
-                'Callback', @(h,d)notify(obj, 'SyncDataSource'));
-            set(dataSourceToolbarLayout, 'Widths', [hpix(84/11) -1 hpix(84/11)]);
-            
-            Separator('Parent', dataSourceLayout);
-            
-            dataSourceMasterDetailLayout = uix.HBoxFlex( ...
-                'Parent', dataSourceLayout, ...
+                'Callback', @(h,d)notify(obj, 'SyncDataStore'));
+            set(dataStoreToolbarLayout, 'Widths', [hpix(84/11) -1 hpix(84/11)]);
+
+            Separator('Parent', dataStoreLayout);
+
+            dataStoreMasterDetailLayout = uix.HBoxFlex( ...
+                'Parent', dataStoreLayout, ...
                 'DividerMarkings', 'off', ...
                 'DividerBackgroundColor', [160/255 160/255 160/255], ...
                 'Spacing', 1);
-            
-            dataSourceMasterLayout = uix.HBox( ...
-                'Parent', dataSourceMasterDetailLayout);
-            
-            obj.dataSourceCard.entityTree = uiextras.jTree.Tree( ...
-                'Parent', dataSourceMasterLayout, ...
+
+            dataStoreMasterLayout = uix.HBox( ...
+                'Parent', dataStoreMasterDetailLayout);
+
+            obj.dataStoreCard.entityTree = uiextras.jTree.Tree( ...
+                'Parent', dataStoreMasterLayout, ...
                 'FontName', get(obj.figureHandle, 'DefaultUicontrolFontName'), ...
                 'FontSize', get(obj.figureHandle, 'DefaultUicontrolFontSize'), ...
                 'BorderType', 'none', ...
                 'RootVisible', false, ...
                 'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedEntityNodes'), ...
                 'SelectionType', 'discontiguous');
-            
-            dataSourceDetailLayout = uix.VBox( ...
-                'Parent', dataSourceMasterDetailLayout, ...
+
+            dataStoreDetailLayout = uix.VBox( ...
+                'Parent', dataStoreMasterDetailLayout, ...
                 'Padding', 11);
-            
-            set(dataSourceMasterDetailLayout, 'Widths', [-1 -2]);
-            
-            set(dataSourceLayout, 'Heights', [vpix(26/16) 1 -1]);
-            
+
+            set(dataStoreMasterDetailLayout, 'Widths', [-1 -2]);
+
+            set(dataStoreLayout, 'Heights', [vpix(26/16) 1 -1]);
+
             obj.setCardSelection(obj.EMPTY_CARD);
-            
+
             set(mainLayout, 'Widths', [-1 -4]);
         end
-        
+
         function show(obj)
             show@appbox.View(obj);
-            
+
             % FIXME: This is needed to correct the font on Buttons
-            set(obj.dataSourceCard.queryButton, 'String', get(obj.dataSourceCard.queryButton, 'String'));
-            set(obj.dataSourceCard.syncButton, 'String', get(obj.dataSourceCard.syncButton, 'String'));
+            set(obj.dataStoreCard.queryButton, 'String', get(obj.dataStoreCard.queryButton, 'String'));
+            set(obj.dataStoreCard.syncButton, 'String', get(obj.dataStoreCard.syncButton, 'String'));
         end
-        
+
         function setCardSelection(obj, index)
             set(obj.detailCardPanel, 'Selection', index);
         end
-        
-        function n = getDataSourceRootNode(obj)
-            n = obj.dataSourceTree.Root;
+
+        function n = getDataStoreRootNode(obj)
+            n = obj.dataStoreTree.Root;
         end
-        
-        function n = addDataSourceNode(obj, parent, name, entity)
+
+        function n = addDataStoreNode(obj, parent, name, entity)
             value.entity = entity;
-            value.type = encoreui.ui.views.DataSourceNodeType.DATA_SOURCE;
+            value.type = encoreui.ui.views.DataStoreNodeType.DATA_STORE;
             n = uiextras.jTree.TreeNode( ...
                 'Parent', parent, ...
                 'Name', name, ...
                 'Value', value);
-            n.setIcon(encoreui.app.App.getResource('icons', 'data_source.png'));
+            n.setIcon(encoreui.app.App.getResource('icons', 'data_store.png'));
         end
-        
-        function n = getSelectedDataSourceNode(obj)
-            n = appbox.firstOrElse(obj.dataSourceTree.SelectedNodes, []);
+
+        function n = getSelectedDataStoreNode(obj)
+            n = appbox.firstOrElse(obj.dataStoreTree.SelectedNodes, []);
         end
-        
+
         function e = getNodeEntity(obj, node)
             v = get(node, 'Value');
             e = v.entity;
         end
-        
+
         function t = getNodeType(obj, node)
             v = get(node, 'Value');
             t = v.type;
         end
-        
-        function setQueryString(obj, s)
-            obj.dataSourceCard.queryButton.String = s;
-        end
-        
-    end
-    
-end
 
+        function setQueryString(obj, s)
+            obj.dataStoreCard.queryButton.String = s;
+        end
+
+    end
+
+end
