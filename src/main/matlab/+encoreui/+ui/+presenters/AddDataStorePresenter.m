@@ -81,11 +81,17 @@ classdef AddDataStorePresenter < appbox.Presenter
         function disableControls(obj)
             obj.view.enableAdd(false);
             obj.view.enableCancel(false);
+            obj.view.enableHost(false);
+            obj.view.enableUsername(false);
+            obj.view.enablePassword(false);
         end
         
         function updateStateOfControls(obj)
             obj.view.enableAdd(true);
             obj.view.enableCancel(true);
+            obj.view.enableHost(true);
+            obj.view.enableUsername(true);
+            obj.view.enablePassword(true);
         end
 
     end

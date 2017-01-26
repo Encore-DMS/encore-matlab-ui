@@ -100,6 +100,10 @@ classdef AddDataStoreView < appbox.View
         function enableCancel(obj, tf)
             set(obj.cancelButton, 'Enable', appbox.onOff(tf));
         end
+        
+        function enableHost(obj, tf)
+            set(obj.hostField, 'Enable', appbox.onOff(tf));
+        end
 
         function u = getHost(obj)
             u = get(obj.hostField, 'String');
@@ -109,9 +113,17 @@ classdef AddDataStoreView < appbox.View
             obj.update();
             uicontrol(obj.hostField);
         end
+        
+        function enableUsername(obj, tf)
+            set(obj.usernameField, 'Enable', appbox.onOff(tf));
+        end
 
         function u = getUsername(obj)
             u = get(obj.usernameField, 'String');
+        end
+        
+        function enablePassword(obj, tf)
+            set(obj.passwordField, 'Enable', appbox.onOff(tf));
         end
 
         function p = getPassword(obj)
