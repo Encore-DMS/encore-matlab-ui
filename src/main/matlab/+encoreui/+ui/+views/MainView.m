@@ -226,8 +226,17 @@ classdef MainView < appbox.View
             n = appbox.firstOrElse(obj.dataStoreTree.SelectedNodes, []);
         end
         
+        function setSelectedDataStoreNode(obj, node)
+            obj.dataStoreTree.SelectedNodes = node;
+        end
+        
         function n = getEntityTreeRootNode(obj)
             n = obj.dataStoreCard.entityTree.Root;
+        end
+        
+        function clearEntityTree(obj)
+            root = obj.dataStoreCard.entityTree.Root;
+            delete(root.Children(isvalid(root.Children)));
         end
         
         function n = addProjectNode(obj, parent, name, entity)
@@ -258,6 +267,18 @@ classdef MainView < appbox.View
         function t = getNodeType(obj, node)
             v = get(node, 'Value');
             t = v.type;
+        end
+        
+        function removeNode(obj, node)
+            node.delete();
+        end
+        
+        function collapseNode(obj, node)
+            node.collapse();
+        end
+        
+        function expandNode(obj, node)
+            node.expand();
         end
 
         function setQueryString(obj, s)

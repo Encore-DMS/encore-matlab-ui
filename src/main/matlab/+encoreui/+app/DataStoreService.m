@@ -15,8 +15,7 @@ classdef DataStoreService < handle
         end
 
         function c = addDataStore(obj, host, user, password)
-            coordinator = encore.core.Encore.connect(host, user, password);
-            c = coordinator.getContext();
+            c = encore.core.Encore.connect(host, user, password);
             % TODO: Remove me
             addTestData(c);
             notify(obj, 'AddedDataStore', encoreui.app.AppEventData(c));
@@ -26,7 +25,9 @@ classdef DataStoreService < handle
 
 end
 
-function addTestData(context)
+function addTestData(coordinator)
+    context = coordinator.getContext();
+
     t = datetime('now', 'TimeZone', 'local');
     
     p1 = context.insertProject('my first', 'for testing purposes', t, t);

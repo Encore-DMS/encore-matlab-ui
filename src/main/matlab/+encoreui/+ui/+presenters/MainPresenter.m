@@ -54,39 +54,45 @@ classdef MainPresenter < appbox.Presenter
         end
 
         function onServiceAddedDataStore(obj, ~, event)
-            context = event.data;
-            node = obj.addDataStoreNode(context);
+            coordinator = event.data;
+            node = obj.addDataStoreNode(coordinator);
+            
+            obj.view.update();
+            obj.view.setSelectedDataStoreNode(node);
+            
+            obj.populateDetailsForDataStore(coordinator);
         end
 
-        function n = addDataStoreNode(obj, context)
+        function n = addDataStoreNode(obj, coordinator)
             parent = obj.view.getDataStoreTreeRootNode();
-            coordinator = context.getCoordinator();
-            n = obj.view.addDataStoreNode(parent, coordinator.getPrimaryDataStore().url, context);
+            n = obj.view.addDataStoreNode(parent, coordinator.getPrimaryDataStore().url, coordinator);
+        end
+
+        function onViewSelectedDataStoreNode(obj, ~, ~)
+            coordinator = obj.getSelectedDataStore();
+            obj.populateDetailsForDataStore(coordinator);
+        end
+
+        function populateDetailsForDataStore(obj, coordinator)
+            obj.populateEntityTreeForDataStore(coordinator);
             
+            obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
+        end
+        
+        function populateEntityTreeForDataStore(obj, coordinator)
+            obj.view.clearEntityTree();
+            
+            context = coordinator.getContext();
             projects = context.getProjects();
             for i = 1:numel(projects)
                 obj.addProjectNode(projects{i});
             end
-        end
-
-        function onViewSelectedDataStoreNode(obj, ~, ~)
-            store = obj.getSelectedDataStore();
-            obj.populateDetailsForDataStore(store);
-        end
-
-        function populateDetailsForDataStore(obj, store)
-            obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
         end
         
         function n = addProjectNode(obj, project)
             parent = obj.view.getEntityTreeRootNode();
             n = obj.view.addProjectNode(parent, project.name, project);
             obj.uuidToNode(project.uuid) = n;
-            
-            experiments = project.getExperiments();
-            for i = 1:numel(experiments)
-                obj.addExperimentNode(project, experiments{i});
-            end
         end
         
         function n = addExperimentNode(obj, project, experiment)
