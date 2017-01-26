@@ -1,9 +1,10 @@
 classdef MainPresenter < appbox.Presenter
 
-    properties
+    properties (Access = private)
         log
         dataStoreService
         configurationService
+        uuidToNode
     end
 
     methods
@@ -17,6 +18,7 @@ classdef MainPresenter < appbox.Presenter
             obj.log = log4m.LogManager.getLogger(class(obj));
             obj.dataStoreService = dataStoreService;
             obj.configurationService = configurationService;
+            obj.uuidToNode = containers.Map();
         end
 
     end
@@ -51,14 +53,19 @@ classdef MainPresenter < appbox.Presenter
         end
 
         function onServiceAddedDataStore(obj, ~, event)
-            store = event.data;
-            node = obj.addDataStoreNode(store);
+            context = event.data;
+            node = obj.addDataStoreNode(context);
         end
 
-        function n = addDataStoreNode(obj, store)
-            parent = obj.view.getDataStoreRootNode();
-
-            n = obj.view.addDataStoreNode(parent, store.url, store);
+        function n = addDataStoreNode(obj, context)
+            parent = obj.view.getDataStoreTreeRootNode();
+            coordinator = context.getCoordinator();
+            n = obj.view.addDataStoreNode(parent, coordinator.getPrimaryDataStore().url, context);
+            
+            projects = context.getProjects();
+            for i = 1:numel(projects)
+                obj.addProjectNode(projects{i});
+            end
         end
 
         function onViewSelectedDataStoreNode(obj, ~, ~)
@@ -68,6 +75,27 @@ classdef MainPresenter < appbox.Presenter
 
         function populateDetailsForDataStore(obj, store)
             obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
+        end
+        
+        function n = addProjectNode(obj, project)
+            parent = obj.view.getEntityTreeRootNode();
+            n = obj.view.addProjectNode(parent, project.name, project);
+            obj.uuidToNode(project.uuid) = n;
+            
+            experiments = project.getExperiments();
+            for i = 1:numel(experiments)
+                obj.addExperimentNode(project, experiments{i});
+            end
+        end
+        
+        function n = addExperimentNode(obj, project, experiment)
+            parent = obj.uuidToNode(project.uuid);
+            if isempty(experiment.purpose)
+                name = datestr(experiment.startTime, 1);
+            else
+                name = [experiment.purpose ' [' datestr(experiment.startTime, 1) ']'];
+            end
+            n = obj.view.addExperimentNode(parent, name, experiment);
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)

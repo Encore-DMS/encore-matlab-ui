@@ -170,7 +170,7 @@ classdef MainView < appbox.View
             set(obj.detailCardPanel, 'Selection', index);
         end
 
-        function n = getDataStoreRootNode(obj)
+        function n = getDataStoreTreeRootNode(obj)
             n = obj.dataStoreTree.Root;
         end
 
@@ -186,6 +186,30 @@ classdef MainView < appbox.View
 
         function n = getSelectedDataStoreNode(obj)
             n = appbox.firstOrElse(obj.dataStoreTree.SelectedNodes, []);
+        end
+        
+        function n = getEntityTreeRootNode(obj)
+            n = obj.dataStoreCard.entityTree.Root;
+        end
+        
+        function n = addProjectNode(obj, parent, name, entity)
+            value.entity = entity;
+            value.type = encoreui.ui.views.EntityNodeType.PROJECT;
+            n = uiextras.jTree.TreeNode( ...
+                'Parent', parent, ...
+                'Name', name, ...
+                'Value', value);
+            n.setIcon(encoreui.app.App.getResource('icons', 'project.png'));
+        end
+        
+        function n = addExperimentNode(obj, parent, name, entity)
+            value.entity = entity;
+            value.type = encoreui.ui.views.EntityNodeType.EXPERIMENT;
+            n = uiextras.jTree.TreeNode( ...
+                'Parent', parent, ...
+                'Name', name, ...
+                'Value', value);
+            n.setIcon(encoreui.app.App.getResource('icons', 'experiment.png'));
         end
 
         function e = getNodeEntity(obj, node)

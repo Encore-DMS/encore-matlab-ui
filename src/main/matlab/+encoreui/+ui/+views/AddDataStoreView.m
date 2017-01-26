@@ -6,9 +6,10 @@ classdef AddDataStoreView < appbox.View
     end
 
     properties (Access = private)
-        urlField
-        userField
+        hostField
+        usernameField
         passwordField
+        spinner
         addButton
         cancelButton
     end
@@ -33,31 +34,37 @@ classdef AddDataStoreView < appbox.View
                 'Spacing', 7);
             Label( ...
                 'Parent', storeLayout, ...
-                'String', 'URL:');
+                'String', 'Host:');
             Label( ...
                 'Parent', storeLayout, ...
-                'String', 'User:');
+                'String', 'Username:');
             Label( ...
                 'Parent', storeLayout, ...
                 'String', 'Password:');
-            obj.urlField = uicontrol( ...
+            obj.hostField = uicontrol( ...
                 'Parent', storeLayout, ...
                 'Style', 'edit', ...
                 'HorizontalAlignment', 'left');
-            obj.userField = uicontrol( ...
+            obj.usernameField = uicontrol( ...
                 'Parent', storeLayout, ...
                 'Style', 'edit', ...
                 'HorizontalAlignment', 'left');
             obj.passwordField = PasswordField( ...
                 'Parent', storeLayout);
             set(storeLayout, ...
-                'Widths', [hpix(60/11) -1], ...
+                'Widths', [hpix(65/11) -1], ...
                 'Heights', [vpix(23/16) vpix(23/16) vpix(23/16)]);
 
             % Add/Cancel controls.
             controlsLayout = uix.HBox( ...
                 'Parent', mainLayout, ...
                 'Spacing', 7);
+            spinnerLayout = uix.VBox( ...
+                'Parent', controlsLayout);
+            uix.Empty('Parent', spinnerLayout);
+            obj.spinner = com.mathworks.widgets.BusyAffordance();
+            javacomponent(obj.spinner.getComponent(), [], spinnerLayout);
+            set(spinnerLayout, 'Heights', [4 -1]);
             uix.Empty('Parent', controlsLayout);
             obj.addButton = uicontrol( ...
                 'Parent', controlsLayout, ...
@@ -71,32 +78,52 @@ classdef AddDataStoreView < appbox.View
                 'String', 'Cancel', ...
                 'Interruptible', 'off', ...
                 'Callback', @(h,d)notify(obj, 'Cancel'));
-            set(controlsLayout, 'Widths', [-1 hpix(75/11) hpix(75/11)]);
+            set(controlsLayout, 'Widths', [hpix(16/11) -1 hpix(75/11) hpix(75/11)]);
 
             set(mainLayout, 'Heights', [-1 vpix(23/16)]);
 
             % Set clone button to appear as the default button.
             try %#ok<TRYNC>
                 h = handle(obj.figureHandle);
-                h.setDefaultButton(obj.cloneButton);
+                h.setDefaultButton(obj.addButton);
             end
         end
-
-        function u = getUrl(obj)
-            u = get(obj.urlField, 'String');
+        
+        function enableAdd(obj, tf)
+            set(obj.addButton, 'Enable', appbox.onOff(tf));
+        end
+        
+        function tf = getEnableAdd(obj)
+            tf = appbox.onOff(get(obj.addButton, 'Enable'));
+        end
+        
+        function enableCancel(obj, tf)
+            set(obj.cancelButton, 'Enable', appbox.onOff(tf));
         end
 
-        function requestUrlFocus(obj)
+        function u = getHost(obj)
+            u = get(obj.hostField, 'String');
+        end
+
+        function requestHostFocus(obj)
             obj.update();
-            uicontrol(obj.urlField);
+            uicontrol(obj.hostField);
         end
 
-        function u = getUser(obj)
-            u = get(obj.userField, 'String');
+        function u = getUsername(obj)
+            u = get(obj.usernameField, 'String');
         end
 
         function p = getPassword(obj)
             p = get(obj.passwordField, 'String');
+        end
+        
+        function startSpinner(obj)
+            obj.spinner.start();
+        end
+        
+        function stopSpinner(obj)
+            obj.spinner.stop();
         end
 
     end

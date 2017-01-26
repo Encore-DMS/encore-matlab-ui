@@ -23,7 +23,7 @@ classdef AddDataStorePresenter < appbox.Presenter
     methods (Access = protected)
 
         function didGo(obj)
-            obj.view.requestUrlFocus();
+            obj.view.requestHostFocus();
         end
 
         function bind(obj)
@@ -42,7 +42,9 @@ classdef AddDataStorePresenter < appbox.Presenter
         function onViewKeyPress(obj, ~, event)
             switch event.data.Key
                 case 'return'
-                    obj.onViewSelectedAdd();
+                    if obj.view.getEnableAdd()
+                        obj.onViewSelectedAdd();
+                    end
                 case 'escape'
                     obj.onViewSelectedCancel();
             end
@@ -51,14 +53,20 @@ classdef AddDataStorePresenter < appbox.Presenter
         function onViewSelectedAdd(obj, ~, ~)
             obj.view.update();
 
-            url = obj.view.getUrl();
-            user = obj.view.getUser();
+            host = obj.view.getHost();
+            username = obj.view.getUsername();
             password = obj.view.getPassword();
             try
-                store = obj.dataStoreService.addDataStore(url, user, password);
+                obj.disableControls();
+                obj.view.startSpinner();
+                obj.view.update();
+                
+                store = obj.dataStoreService.addDataStore(host, username, password);
             catch x
                 obj.log.debug(x.message, x);
                 obj.view.showError(x.message);
+                obj.view.stopSpinner();
+                obj.updateStateOfControls();
                 return;
             end
 
@@ -68,6 +76,16 @@ classdef AddDataStorePresenter < appbox.Presenter
 
         function onViewSelectedCancel(obj, ~, ~)
             obj.stop();
+        end
+        
+        function disableControls(obj)
+            obj.view.enableAdd(false);
+            obj.view.enableCancel(false);
+        end
+        
+        function updateStateOfControls(obj)
+            obj.view.enableAdd(true);
+            obj.view.enableCancel(true);
         end
 
     end

@@ -23,7 +23,7 @@ function main()
         end
     end
 
-    addJavaJars({'encore-core.jar', 'UIExtrasComboBox.jar', 'UIExtrasTable.jar', 'UIExtrasTable2.jar', 'UIExtrasTree.jar', 'UIExtrasPropertyGrid.jar'});
+    addJavaJars({'UIExtrasComboBox.jar', 'UIExtrasTable.jar', 'UIExtrasTable2.jar', 'UIExtrasTree.jar', 'UIExtrasPropertyGrid.jar'});
 
     options = encoreui.app.Options.getDefault();
     session = Session(options);
