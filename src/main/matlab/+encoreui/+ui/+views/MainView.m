@@ -3,6 +3,7 @@ classdef MainView < appbox.View
     events
         AddDataStore
         Exit
+        ToggleDataStoreList
         ConfigureOptions
         ShowDocumentation
         ShowUserGroup
@@ -15,8 +16,11 @@ classdef MainView < appbox.View
 
     properties (Access = private)
         fileMenu
+        viewMenu
         configureMenu
         helpMenu
+        mainLayout
+        toggleDataStoreListButton
         dataStoreTree
         detailCardPanel
         emptyCard
@@ -47,6 +51,13 @@ classdef MainView < appbox.View
                 'Label', 'Exit', ...
                 'Separator', 'on', ...
                 'Callback', @(h,d)notify(obj, 'Exit'));
+            
+            % View menu.
+            obj.viewMenu.root = uimenu(obj.figureHandle, ...
+                'Label', 'View');
+            obj.viewMenu.toggleDataStoreList = uimenu(obj.viewMenu.root, ...
+                'Label', 'Toggle Data Store List', ...
+                'Callback', @(h,d)notify(obj, 'ToggleDataStoreList'));
 
             % Configure menu.
             obj.configureMenu.root = uimenu(obj.figureHandle, ...
@@ -69,14 +80,29 @@ classdef MainView < appbox.View
                 'Separator', 'on', ...
                 'Callback', @(h,d)notify(obj, 'ShowAbout'));
 
-            mainLayout = uix.HBoxFlex( ...
+            obj.mainLayout = uix.HBoxFlex( ...
                 'Parent', obj.figureHandle, ...
                 'DividerMarkings', 'off', ...
                 'DividerBackgroundColor', [160/255 160/255 160/255], ...
                 'Spacing', 1);
 
-            masterLayout = uix.HBox( ...
-                'Parent', mainLayout);
+            masterLayout = uix.VBox( ...
+                'Parent', obj.mainLayout);
+            
+            dataStoreListToolbarLayout = uix.HBox( ...
+                'Parent', masterLayout);
+            uix.Empty('Parent', dataStoreListToolbarLayout);
+            Label( ...
+                'Parent', dataStoreListToolbarLayout, ...
+                'String', 'Data Stores');
+            obj.toggleDataStoreListButton = Button( ...
+                'Parent', dataStoreListToolbarLayout, ...
+                'Icon', encoreui.app.App.getResource('icons', 'sidebar_toggle.png'), ...
+                'TooltipString', 'Toggle Data Store List', ...
+                'Callback', @(h,d)notify(obj, 'ToggleDataStoreList'));
+            set(dataStoreListToolbarLayout, 'Widths', [hpix(5/11) -1 hpix(26/11)]);
+            
+            Separator('Parent', masterLayout);
 
             obj.dataStoreTree = uiextras.jTree.Tree( ...
                 'Parent', masterLayout, ...
@@ -86,9 +112,11 @@ classdef MainView < appbox.View
                 'RootVisible', false, ...
                 'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedDataStoreNode'), ...
                 'SelectionType', 'single');
+            
+            set(masterLayout, 'Heights', [vpix(26/16) 1 -1]);
 
             detailLayout = uix.VBox( ...
-                'Parent', mainLayout);
+                'Parent', obj.mainLayout);
 
             obj.detailCardPanel = uix.CardPanel( ...
                 'Parent', detailLayout);
@@ -155,7 +183,7 @@ classdef MainView < appbox.View
 
             obj.setCardSelection(obj.EMPTY_CARD);
 
-            set(mainLayout, 'Widths', [-1 -4]);
+            set(obj.mainLayout, 'Widths', [-1 -4]);
         end
 
         function show(obj)
@@ -164,6 +192,16 @@ classdef MainView < appbox.View
             % FIXME: This is needed to correct the font on Buttons
             set(obj.dataStoreCard.queryButton, 'String', get(obj.dataStoreCard.queryButton, 'String'));
             set(obj.dataStoreCard.syncButton, 'String', get(obj.dataStoreCard.syncButton, 'String'));
+        end
+        
+        function toggleDataStoreList(obj, tf)
+            set(obj.mainLayout, 'Widths', [-1*tf -4]);
+            set(obj.mainLayout, 'Spacing', 1*tf);
+        end
+        
+        function tf = getToggleDataStoreList(obj)
+            w = get(obj.mainLayout, 'Widths');
+            tf = w(1) ~= 0;
         end
 
         function setCardSelection(obj, index)

@@ -31,6 +31,7 @@ classdef MainPresenter < appbox.Presenter
             v = obj.view;
             obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
+            obj.addListener(v, 'ToggleDataStoreList', @obj.onViewToggleDataStoreList);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
@@ -113,6 +114,11 @@ classdef MainPresenter < appbox.Presenter
 
         function onViewSelectedExit(obj, ~, ~)
             obj.stop();
+        end
+        
+        function onViewToggleDataStoreList(obj, ~, ~)
+            tf = obj.view.getToggleDataStoreList();
+            obj.view.toggleDataStoreList(~tf);
         end
 
         function onViewSelectedConfigureOptions(obj, ~, ~)
