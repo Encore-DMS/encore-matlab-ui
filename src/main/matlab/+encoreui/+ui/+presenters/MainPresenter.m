@@ -39,6 +39,7 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'SelectedDataStoreNode', @obj.onViewSelectedDataStoreNode);
             obj.addListener(v, 'QueryDataStore', @obj.onViewSelectedQueryDataStore);
             obj.addListener(v, 'SyncDataStore', @obj.onViewSelectedSyncDataStore);
+            obj.addListener(v, 'SelectedEntityNodes', @obj.onViewSelectedEntityNodes);
 
             d = obj.dataStoreService;
             obj.addListener(d, 'AddedDataStore', @obj.onServiceAddedDataStore);
@@ -70,7 +71,11 @@ classdef MainPresenter < appbox.Presenter
 
         function onViewSelectedDataStoreNode(obj, ~, ~)
             coordinator = obj.getSelectedDataStore();
-            obj.populateDetailsForDataStore(coordinator);
+            if ~isempty(coordinator)
+                obj.populateDetailsForDataStore(coordinator);
+            else
+                obj.view.setCardSelection(obj.view.EMPTY_CARD);
+            end
         end
 
         function populateDetailsForDataStore(obj, coordinator)
@@ -95,6 +100,12 @@ classdef MainPresenter < appbox.Presenter
             obj.uuidToNode(project.uuid) = n;
         end
         
+        function populateDetailsForProjectSet(obj, projectSet)
+            obj.view.setProjectName(projectSet.name);
+            obj.view.setProjectPurpose(projectSet.purpose);
+            obj.view.setEntityCardSelection(obj.view.PROJECT_ENTITY_CARD);
+        end
+        
         function n = addExperimentNode(obj, project, experiment)
             parent = obj.uuidToNode(project.uuid);
             if isempty(experiment.purpose)
@@ -115,7 +126,90 @@ classdef MainPresenter < appbox.Presenter
 
         function s = getSelectedDataStore(obj)
             node = obj.view.getSelectedDataStoreNode();
-            s = obj.view.getNodeEntity(node);
+            if ~isempty(node)
+                s = obj.view.getNodeEntity(node);
+            else
+                s = [];
+            end
+        end
+        
+        function populateDetailsForHeterogeneousEntitySet(obj, entitySet)
+            obj.view.setEmptyText('');
+            obj.view.setEntityCardSelection(obj.view.EMPTY_ENTITY_CARD);
+            
+        end
+        
+        function onViewSelectedEntityNodes(obj, ~, ~)
+            
+            entitySet = obj.getSelectedEntitySet();
+            obj.populateDetailsForEntitySet(entitySet);
+        end
+        
+        function populateDetailsForEntitySet(obj, entitySet)
+            import encore.core.EntityType;
+            
+            if entitySet.size == 0
+                obj.populateDetailsForHeterogeneousEntitySet(entitySet);
+                return;
+            end
+            
+            switch entitySet.getEntityType()
+                case EntityType.PROJECT
+                    obj.populateDetailsForProjectSet(entitySet);
+                case EntityType.EXPERIMENT
+                    obj.populateDetailsForExperimentSet(entitySet);
+                case EntityType.SOURCE
+                    obj.populateDetailsForSourceSet(entitySet);
+                case EntityType.EPOCH_GROUP
+                    obj.populateDetailsForEpochGroupSet(entitySet);
+                case EntityType.EPOCH_BLOCK
+                    obj.populateDetailsForEpochBlockSet(entitySet);
+                case EntityType.EPOCH
+                    obj.populateDetailsForEpochSet(entitySet);
+                otherwise
+                    obj.populateDetailsForHeterogeneousEntitySet(entitySet);
+            end
+        end
+        
+        function s = getSelectedEntitySet(obj)
+            import encoreui.ui.views.EntityNodeType;
+            import encore.core.collections.*;
+            
+            nodes = obj.view.getSelectedEntityNodes();
+            
+            entities = {};
+            types = EntityNodeType.empty(0, numel(nodes));
+            for i = 1:numel(nodes)
+                entity = obj.view.getNodeEntity(nodes(i));
+                if ~isempty(entity)
+                    entities{end + 1} = entity; %#ok<AGROW>
+                end
+                types(i) = obj.view.getNodeType(nodes(i));
+            end
+            
+            types = unique(types);
+            if numel(types) ~= 1
+                s = EntitySet({});
+                return;
+            end
+            type = types(1);
+            
+            switch type
+                case EntityNodeType.PROJECT
+                    s = ProjectSet(entities);
+                case EntityNodeType.EXPERIMENT
+                    s = ExperimentSet(entities);
+                case EntityNodeType.SOURCE
+                    s = SourceSet(entities);
+                case EntityNodeType.EPOCH_GROUP
+                    s = EpochGroupSet(entities);
+                case EntityNodeType.EPOCH_BLOCK
+                    s = EpochBlockSet(entities);
+                case EntityNodeType.Epoch
+                    s = EpochSet(entities);
+                otherwise
+                    s = EntitySet(entities);
+            end
         end
 
         function onViewSelectedExit(obj, ~, ~)
