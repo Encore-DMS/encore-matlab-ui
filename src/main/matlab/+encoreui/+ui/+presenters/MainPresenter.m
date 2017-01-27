@@ -82,6 +82,9 @@ classdef MainPresenter < appbox.Presenter
             obj.populateEntityTreeForDataStore(coordinator);
             
             obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
+            
+            entitySet = obj.getSelectedEntitySet();
+            obj.populateEntityDetailsForEntitySet(entitySet);
         end
         
         function populateEntityTreeForDataStore(obj, coordinator)
