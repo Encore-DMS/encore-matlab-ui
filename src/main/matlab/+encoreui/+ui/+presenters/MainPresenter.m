@@ -128,6 +128,16 @@ classdef MainPresenter < appbox.Presenter
                 name = [experiment.purpose ' [' datestr(experiment.startTime, 1) ']'];
             end
             n = obj.view.addExperimentNode(parent, name, experiment);
+            obj.uuidToNode(experiment.uuid) = n;
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function populateEntityDetailsForExperimentSet(obj, experimentSet)
+            obj.view.setExperimentPurpose(experimentSet.purpose);
+            obj.view.setExperimentStartTime(strtrim(datestr(experimentSet.startTime, 14)));
+            obj.view.setExperimentEndTime(strtrim(datestr(experimentSet.endTime, 14)));
+            obj.view.setEntityCardSelection(obj.view.EXPERIMENT_ENTITY_CARD);
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
