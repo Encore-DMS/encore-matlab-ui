@@ -103,6 +103,7 @@ classdef MainPresenter < appbox.Presenter
         function populateEntityDetailsForProjectSet(obj, projectSet)
             obj.view.setProjectName(projectSet.name);
             obj.view.setProjectPurpose(projectSet.purpose);
+            obj.view.setProjectStartTime(strtrim(datestr(projectSet.startTime, 14)));
             obj.view.setEntityCardSelection(obj.view.PROJECT_ENTITY_CARD);
         end
         
