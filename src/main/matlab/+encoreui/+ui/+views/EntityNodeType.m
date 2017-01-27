@@ -7,6 +7,7 @@ classdef EntityNodeType
         EPOCH_GROUP
         EPOCH_BLOCK
         EPOCH
+        PLACEHOLDER
     end
 
 end

@@ -40,6 +40,7 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'QueryDataStore', @obj.onViewSelectedQueryDataStore);
             obj.addListener(v, 'SyncDataStore', @obj.onViewSelectedSyncDataStore);
             obj.addListener(v, 'SelectedEntityNodes', @obj.onViewSelectedEntityNodes);
+            obj.addListener(v, 'EntityNodeExpanded', @obj.onViewEntityNodeExpanded);
 
             d = obj.dataStoreService;
             obj.addListener(d, 'AddedDataStore', @obj.onServiceAddedDataStore);
@@ -101,6 +102,15 @@ classdef MainPresenter < appbox.Presenter
             parent = obj.view.getEntityTreeRootNode();
             n = obj.view.addProjectNode(parent, project.name, project);
             obj.uuidToNode(project.uuid) = n;
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function addProjectChildNodes(obj, project)
+            experiments = project.getExperiments();
+            for i = 1:numel(experiments)
+                obj.addExperimentNode(project, experiments{i});
+            end
         end
         
         function populateEntityDetailsForProjectSet(obj, projectSet)
@@ -175,6 +185,25 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
+        function onViewEntityNodeExpanded(obj, ~, event)
+            import encoreui.ui.views.EntityNodeType;
+            
+            node = event.data.Nodes(1);
+            children = obj.view.getNodeChildren(node);
+            if numel(children) ~= 1 || obj.view.getNodeType(children(1)) ~= encoreui.ui.views.EntityNodeType.PLACEHOLDER
+                return;
+            end
+            
+            entity = obj.view.getNodeEntity(node);
+            type = obj.view.getNodeType(node);
+            switch type
+                case EntityNodeType.PROJECT
+                    obj.addProjectChildNodes(entity);
+            end
+            
+            obj.view.removeNode(children(1));
+        end
+        
         function s = getSelectedEntitySet(obj)
             import encoreui.ui.views.EntityNodeType;
             import encore.core.collections.*;
@@ -209,7 +238,7 @@ classdef MainPresenter < appbox.Presenter
                     s = EpochGroupSet(entities);
                 case EntityNodeType.EPOCH_BLOCK
                     s = EpochBlockSet(entities);
-                case EntityNodeType.Epoch
+                case EntityNodeType.EPOCH
                     s = EpochSet(entities);
                 otherwise
                     s = EntitySet(entities);

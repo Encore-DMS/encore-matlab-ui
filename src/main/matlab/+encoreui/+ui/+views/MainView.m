@@ -12,6 +12,7 @@ classdef MainView < appbox.View
         QueryDataStore
         SyncDataStore
         SelectedEntityNodes
+        EntityNodeExpanded
         SetEntityProperty
         AddEntityProperty
         RemoveEntityProperty
@@ -185,6 +186,7 @@ classdef MainView < appbox.View
                 'BorderType', 'none', ...
                 'RootVisible', false, ...
                 'SelectionChangeFcn', @(h,d)notify(obj, 'SelectedEntityNodes'), ...
+                'NodeExpandedCallback', @(h,d)notify(obj, 'EntityNodeExpanded', encoreui.ui.UiEventData(d)), ...
                 'SelectionType', 'discontiguous');
 
             dataStoreDetailLayout = uix.VBox( ...
@@ -441,6 +443,16 @@ classdef MainView < appbox.View
             set(obj.dataStoreCard.emptyCard.text, 'String', t);
         end
         
+        function n = addPlaceholderNode(obj, parent)
+            value.entity = [];
+            value.type = encoreui.ui.views.EntityNodeType.PLACEHOLDER;
+            n = uiextras.jTree.TreeNode( ...
+                'Parent', parent, ...
+                'Name', 'Loading...', ...
+                'Value', value);
+            n.setIcon(encoreui.app.App.getResource('icons', 'hourglass.png'));
+        end
+        
         function n = addProjectNode(obj, parent, name, entity)
             value.entity = entity;
             value.type = encoreui.ui.views.EntityNodeType.PROJECT;
@@ -489,6 +501,10 @@ classdef MainView < appbox.View
         function t = getNodeType(obj, node)
             v = get(node, 'Value');
             t = v.type;
+        end
+        
+        function c = getNodeChildren(obj, node)
+            c = get(node, 'Children');
         end
         
         function removeNode(obj, node)
