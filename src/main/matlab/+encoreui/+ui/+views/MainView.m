@@ -12,6 +12,12 @@ classdef MainView < appbox.View
         QueryDataStore
         SyncDataStore
         SelectedEntityNodes
+        SetEntityProperty
+        AddEntityProperty
+        RemoveEntityProperty
+        AddEntityKeyword
+        RemoveEntityKeyword
+        AddEntityNote
     end
 
     properties (Access = private)
@@ -28,8 +34,8 @@ classdef MainView < appbox.View
     end
 
     properties (Constant)
-        EMPTY_CARD                  = 1
-        DATA_STORE_CARD             = 2
+        EMPTY_CARD          = 1
+        DATA_STORE_CARD     = 2
         
         EMPTY_ENTITY_CARD           = 1
         PROJECT_ENTITY_CARD         = 2
@@ -248,7 +254,7 @@ classdef MainView < appbox.View
                 'BorderType', 'none', ...
                 'DescriptionBorderType', 'none', ...
                 'ShowDescription', true, ...
-                'Callback', @(h,d)notify(obj, 'SetProperty', symphonyui.ui.UiEventData(d)));
+                'Callback', @(h,d)notify(obj, 'SetEntityProperty', symphonyui.ui.UiEventData(d)));
 
             % Properties toolbar.
             propertiesToolbarLayout = uix.HBox( ...
@@ -257,18 +263,18 @@ classdef MainView < appbox.View
                 'Parent', propertiesToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'show_description.png'), ...
                 'TooltipString', 'Show/Hide Property Description', ...
-                'Callback', @(h,d)notify(obj, 'ShowHidePropertyDescription'));
+                'Callback', @(h,d)notify(obj, 'ShowHideEntityPropertyDescription'));
             uix.Empty('Parent', propertiesToolbarLayout);
             obj.dataStoreCard.propertiesTab.addButton = Button( ...
                 'Parent', propertiesToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'add.png'), ...
                 'TooltipString', 'Add Property...', ...
-                'Callback', @(h,d)notify(obj, 'AddProperty'));
+                'Callback', @(h,d)notify(obj, 'AddEntityProperty'));
             obj.dataStoreCard.propertiesTab.removeButton = Button( ...
                 'Parent', propertiesToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'remove.png'), ...
                 'TooltipString', 'Remove Property', ...
-                'Callback', @(h,d)notify(obj, 'RemoveProperty'));
+                'Callback', @(h,d)notify(obj, 'RemoveEntityProperty'));
             uix.Empty('Parent', propertiesToolbarLayout);
             set(propertiesToolbarLayout, 'Widths', [22 -1 22 22 1]);
 
@@ -297,12 +303,12 @@ classdef MainView < appbox.View
                 'Parent', keywordsToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'add.png'), ...
                 'TooltipString', 'Add Keyword...', ...
-                'Callback', @(h,d)notify(obj, 'AddKeyword'));
+                'Callback', @(h,d)notify(obj, 'AddEntityKeyword'));
             obj.dataStoreCard.keywordsTab.removeButton = Button( ...
                 'Parent', keywordsToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'remove.png'), ...
                 'TooltipString', 'Remove Keyword', ...
-                'Callback', @(h,d)notify(obj, 'RemoveKeyword'));
+                'Callback', @(h,d)notify(obj, 'RemoveEntityKeyword'));
             uix.Empty('Parent', keywordsToolbarLayout);
             set(keywordsToolbarLayout, 'Widths', [-1 22 22 1]);
 
@@ -333,7 +339,7 @@ classdef MainView < appbox.View
                 'Parent', notesToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'add.png'), ...
                 'TooltipString', 'Add Note...', ...
-                'Callback', @(h,d)notify(obj, 'AddNote'));
+                'Callback', @(h,d)notify(obj, 'AddEntityNote'));
             obj.dataStoreCard.notesTab.removeButton = Button( ...
                 'Parent', notesToolbarLayout, ...
                 'Icon', encoreui.app.App.getResource('icons', 'remove.png'), ...
@@ -370,6 +376,13 @@ classdef MainView < appbox.View
             % FIXME: This is needed to correct the font on Buttons
             set(obj.dataStoreCard.queryButton, 'String', get(obj.dataStoreCard.queryButton, 'String'));
             set(obj.dataStoreCard.syncButton, 'String', get(obj.dataStoreCard.syncButton, 'String'));
+        end
+        
+        function close(obj)
+            close@appbox.View(obj);
+            %obj.dataStoreCard.epochCard.grid.Close();
+            obj.dataStoreCard.propertiesTab.grid.Close();
+            obj.dataStoreCard.parametersTab.grid.Close();
         end
         
         function setCardSelection(obj, index)
@@ -421,7 +434,7 @@ classdef MainView < appbox.View
             delete(root.Children(isvalid(root.Children)));
         end
         
-        function setEmptyText(obj, t)
+        function setEmptyEntityText(obj, t)
             set(obj.dataStoreCard.emptyCard.text, 'String', t);
         end
         
@@ -481,10 +494,6 @@ classdef MainView < appbox.View
         
         function expandNode(obj, node)
             node.expand();
-        end
-
-        function setQueryString(obj, s)
-            obj.dataStoreCard.queryButton.String = s;
         end
 
     end

@@ -71,11 +71,11 @@ classdef MainPresenter < appbox.Presenter
 
         function onViewSelectedDataStoreNode(obj, ~, ~)
             coordinator = obj.getSelectedDataStore();
-            if ~isempty(coordinator)
-                obj.populateDetailsForDataStore(coordinator);
-            else
+            if isempty(coordinator)
                 obj.view.setCardSelection(obj.view.EMPTY_CARD);
+                return;
             end
+            obj.populateDetailsForDataStore(coordinator);
         end
 
         function populateDetailsForDataStore(obj, coordinator)
@@ -100,7 +100,7 @@ classdef MainPresenter < appbox.Presenter
             obj.uuidToNode(project.uuid) = n;
         end
         
-        function populateDetailsForProjectSet(obj, projectSet)
+        function populateEntityDetailsForProjectSet(obj, projectSet)
             obj.view.setProjectName(projectSet.name);
             obj.view.setProjectPurpose(projectSet.purpose);
             obj.view.setEntityCardSelection(obj.view.PROJECT_ENTITY_CARD);
@@ -133,8 +133,8 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
-        function populateDetailsForHeterogeneousEntitySet(obj, entitySet)
-            obj.view.setEmptyText('');
+        function populateEntityDetailsForHeterogeneousEntitySet(obj, entitySet)
+            obj.view.setEmptyEntityText('');
             obj.view.setEntityCardSelection(obj.view.EMPTY_ENTITY_CARD);
             
         end
@@ -142,32 +142,32 @@ classdef MainPresenter < appbox.Presenter
         function onViewSelectedEntityNodes(obj, ~, ~)
             
             entitySet = obj.getSelectedEntitySet();
-            obj.populateDetailsForEntitySet(entitySet);
+            obj.populateEntityDetailsForEntitySet(entitySet);
         end
         
-        function populateDetailsForEntitySet(obj, entitySet)
+        function populateEntityDetailsForEntitySet(obj, entitySet)
             import encore.core.EntityType;
             
             if entitySet.size == 0
-                obj.populateDetailsForHeterogeneousEntitySet(entitySet);
+                obj.populateEntityDetailsForHeterogeneousEntitySet(entitySet);
                 return;
             end
             
             switch entitySet.getEntityType()
                 case EntityType.PROJECT
-                    obj.populateDetailsForProjectSet(entitySet);
+                    obj.populateEntityDetailsForProjectSet(entitySet);
                 case EntityType.EXPERIMENT
-                    obj.populateDetailsForExperimentSet(entitySet);
+                    obj.populateEntityDetailsForExperimentSet(entitySet);
                 case EntityType.SOURCE
-                    obj.populateDetailsForSourceSet(entitySet);
+                    obj.populateEntityDetailsForSourceSet(entitySet);
                 case EntityType.EPOCH_GROUP
-                    obj.populateDetailsForEpochGroupSet(entitySet);
+                    obj.populateEntityDetailsForEpochGroupSet(entitySet);
                 case EntityType.EPOCH_BLOCK
-                    obj.populateDetailsForEpochBlockSet(entitySet);
+                    obj.populateEntityDetailsForEpochBlockSet(entitySet);
                 case EntityType.EPOCH
-                    obj.populateDetailsForEpochSet(entitySet);
+                    obj.populateEntityDetailsForEpochSet(entitySet);
                 otherwise
-                    obj.populateDetailsForHeterogeneousEntitySet(entitySet);
+                    obj.populateEntityDetailsForHeterogeneousEntitySet(entitySet);
             end
         end
         
