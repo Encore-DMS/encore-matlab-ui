@@ -32,6 +32,7 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ToggleDataStoreList', @obj.onViewToggleDataStoreList);
+            obj.addListener(v, 'AddProject', @obj.onViewSelectedAddProject);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
@@ -41,6 +42,9 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'SyncDataStore', @obj.onViewSelectedSyncDataStore);
             obj.addListener(v, 'SelectedEntityNodes', @obj.onViewSelectedEntityNodes);
             obj.addListener(v, 'EntityNodeExpanded', @obj.onViewEntityNodeExpanded);
+            obj.addListener(v, 'SendEntityToWorkspace', @obj.onViewSelectedSendEntityToWorkspace);
+            obj.addListener(v, 'ReloadEntity', @obj.onViewSelectedReloadEntity);
+            obj.addListener(v, 'DeleteEntity', @obj.onViewSelectedDeleteEntity);
 
             d = obj.dataStoreService;
             obj.addListener(d, 'AddedDataStore', @obj.onServiceAddedDataStore);
@@ -98,6 +102,10 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
+        function onViewSelectedAddProject(obj, ~, ~)
+            disp('add project');
+        end
+        
         function n = addProjectNode(obj, project)
             parent = obj.view.getEntityTreeRootNode();
             n = obj.view.addProjectNode(parent, project.name, project);
@@ -141,11 +149,11 @@ classdef MainPresenter < appbox.Presenter
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
-            disp('Selected query data store');
+            disp('query data store');
         end
 
         function onViewSelectedSyncDataStore(obj, ~, ~)
-            disp('Selected sync data store');
+            disp('sync data store');
         end
 
         function s = getSelectedDataStore(obj)
@@ -212,6 +220,18 @@ classdef MainPresenter < appbox.Presenter
             end
             
             obj.view.removeNode(children(1));
+        end
+        
+        function onViewSelectedSendEntityToWorkspace(obj, ~, ~)
+            disp('send entity to workspace');
+        end
+        
+        function onViewSelectedReloadEntity(obj, ~, ~)
+            disp('reload entity');
+        end
+        
+        function onViewSelectedDeleteEntity(obj, ~, ~)
+            disp('delete entity');
         end
         
         function s = getSelectedEntitySet(obj)

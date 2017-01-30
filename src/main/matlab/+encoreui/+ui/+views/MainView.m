@@ -4,6 +4,7 @@ classdef MainView < appbox.View
         AddDataStore
         Exit
         ToggleDataStoreList
+        AddProject
         ConfigureOptions
         ShowDocumentation
         ShowUserGroup
@@ -19,11 +20,15 @@ classdef MainView < appbox.View
         AddEntityKeyword
         RemoveEntityKeyword
         AddEntityNote
+        SendEntityToWorkspace
+        ReloadEntity
+        DeleteEntity
     end
 
     properties (Access = private)
         fileMenu
         viewMenu
+        dataStoreMenu
         configureMenu
         helpMenu
         mainLayout
@@ -73,6 +78,20 @@ classdef MainView < appbox.View
             obj.viewMenu.toggleDataStoreList = uimenu(obj.viewMenu.root, ...
                 'Label', 'Toggle Data Store List', ...
                 'Callback', @(h,d)notify(obj, 'ToggleDataStoreList'));
+            
+            % Data Store menu.
+            obj.dataStoreMenu.root = uimenu(obj.figureHandle, ...
+                'Label', 'Data Store');
+            obj.dataStoreMenu.addProject = uimenu(obj.dataStoreMenu.root, ...
+                'Label', 'Add Project...', ...
+                'Callback', @(h,d)notify(obj, 'AddProject'));
+            obj.dataStoreMenu.query = uimenu(obj.dataStoreMenu.root, ...
+                'Label', 'Query', ...
+                'Separator', 'on', ...
+                'Callback', @(h,d)notify(obj, 'QueryDataStore'));
+            obj.dataStoreMenu.sync = uimenu(obj.dataStoreMenu.root, ...
+                'Label', 'Sync', ...
+                'Callback', @(h,d)notify(obj, 'SyncDataStore'));
 
             % Configure menu.
             obj.configureMenu.root = uimenu(obj.figureHandle, ...
@@ -523,6 +542,9 @@ classdef MainView < appbox.View
                 'Name', name, ...
                 'Value', value);
             n.setIcon(encoreui.app.App.getResource('icons', 'project.png'));
+            menu = uicontextmenu('Parent', obj.figureHandle);
+            menu = obj.addEntityContextMenus(menu);
+            set(n, 'UIContextMenu', menu);
         end
         
         function setProjectName(obj, n)
@@ -545,6 +567,9 @@ classdef MainView < appbox.View
                 'Name', name, ...
                 'Value', value);
             n.setIcon(encoreui.app.App.getResource('icons', 'experiment.png'));
+            menu = uicontextmenu('Parent', obj.figureHandle);
+            menu = obj.addEntityContextMenus(menu);
+            set(n, 'UIContextMenu', menu);
         end
         
         function setExperimentPurpose(obj, p)
@@ -593,6 +618,26 @@ classdef MainView < appbox.View
             node.expand();
         end
 
+    end
+    
+    methods (Access = private)
+        
+        function menu = addEntityContextMenus(obj, menu)
+            uimenu( ...
+                'Parent', menu, ...
+                'Label', 'Send to Workspace', ...
+                'Separator', appbox.onOff(~isempty(get(menu, 'Children'))), ...
+                'Callback', @(h,d)notify(obj, 'SendEntityToWorkspace'));
+            uimenu( ...
+                'Parent', menu, ...
+                'Label', 'Reload', ...
+                'Callback', @(h,d)notify(obj, 'ReloadEntity'));
+            uimenu( ...
+                'Parent', menu, ...
+                'Label', 'Delete', ...
+                'Callback', @(h,d)notify(obj, 'DeleteEntity'));
+        end
+        
     end
 
 end
