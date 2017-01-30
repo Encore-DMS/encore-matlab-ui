@@ -140,6 +140,7 @@ classdef Tree < hgsetget
         Parent %parent container
         Position %position of the tree within the parent container
         RootVisible %whether the root is visible or not
+        RootHandlesVisible
         SelectedNodes %tree nodes that are currently selected
         SelectionType %selection mode string
         Tag %tag assigned to the tree container
@@ -1172,6 +1173,18 @@ classdef Tree < hgsetget
             validateattributes(value,{'numeric','logical'},{'scalar'});
             value = logical(value);
             tObj.jTree.setRootVisible(value); %show/hide root
+        end
+        
+        % RootHandlesVisible
+        function value = get.RootHandlesVisible(tObj)
+            value = get(tObj.jTree,'showsRootHandles');
+        end
+        function set.RootHandlesVisible(tObj,value)
+            if ischar(value)
+                value = strcmp(value,'on');
+            end
+            validateattributes(value,{'numeric','logical'},{'scalar'});
+            value = logical(value);
             tObj.jTree.setShowsRootHandles(value); %hide/show top level handles
         end
         
