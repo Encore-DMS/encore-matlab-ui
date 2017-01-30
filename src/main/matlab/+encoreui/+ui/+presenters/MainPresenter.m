@@ -4,6 +4,7 @@ classdef MainPresenter < appbox.Presenter
         log
         dataStoreService
         configurationService
+        detailedEntitySet
         uuidToNode
     end
 
@@ -18,6 +19,7 @@ classdef MainPresenter < appbox.Presenter
             obj.log = log4m.LogManager.getLogger(class(obj));
             obj.dataStoreService = dataStoreService;
             obj.configurationService = configurationService;
+            obj.detailedEntitySet = encore.core.collections.EntitySet();
             obj.uuidToNode = containers.Map();
         end
 
@@ -126,6 +128,8 @@ classdef MainPresenter < appbox.Presenter
             obj.view.setProjectPurpose(projectSet.purpose);
             obj.view.setProjectStartTime(strtrim(datestr(projectSet.startTime, 14)));
             obj.view.setEntityCardSelection(obj.view.PROJECT_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(projectSet);
         end
         
         function n = addExperimentNode(obj, project, experiment)
@@ -146,6 +150,8 @@ classdef MainPresenter < appbox.Presenter
             obj.view.setExperimentStartTime(strtrim(datestr(experimentSet.startTime, 14)));
             obj.view.setExperimentEndTime(strtrim(datestr(experimentSet.endTime, 14)));
             obj.view.setEntityCardSelection(obj.view.EXPERIMENT_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(experimentSet);
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
@@ -169,6 +175,7 @@ classdef MainPresenter < appbox.Presenter
             obj.view.setEmptyEntityText('');
             obj.view.setEntityCardSelection(obj.view.EMPTY_ENTITY_CARD);
             
+            obj.populateCommonEntityDetailsForEntitySet(entitySet);
         end
         
         function onViewSelectedEntityNodes(obj, ~, ~)
@@ -203,6 +210,11 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
+        function populateCommonEntityDetailsForEntitySet(obj, entitySet)
+            
+            obj.detailedEntitySet = entitySet;
+        end
+        
         function onViewEntityNodeExpanded(obj, ~, event)
             import encoreui.ui.views.EntityNodeType;
             
@@ -223,7 +235,16 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function onViewSelectedSendEntityToWorkspace(obj, ~, ~)
-            disp('send entity to workspace');
+            entitySet = obj.detailedEntitySet;
+            for i = 1:entitySet.size
+                try
+                    obj.dataStoreService.sendEntityToWorkspace(entitySet.get(i));
+                catch x
+                    obj.log.debug(x.message, x);
+                    obj.view.showError(x.message);
+                    return;
+                end
+            end
         end
         
         function onViewSelectedReloadEntity(obj, ~, ~)

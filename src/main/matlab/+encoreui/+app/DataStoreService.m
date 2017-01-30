@@ -20,6 +20,12 @@ classdef DataStoreService < handle
             addTestData(c);
             notify(obj, 'AddedDataStore', encoreui.app.AppEventData(c));
         end
+        
+        function sendEntityToWorkspace(obj, entity) %#ok<INUSL>
+            name = matlab.lang.makeValidName(entity.uuid);
+            assignin('base', name, entity);
+            evalin('base', ['disp(''' name ' = ' class(entity) ''')']);
+        end
 
     end
 
