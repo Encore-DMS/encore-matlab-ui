@@ -14,8 +14,8 @@ classdef DataStoreService < handle
             obj.session = session;
         end
 
-        function c = addDataStore(obj, host, user, password)
-            c = encore.core.Encore.connect(host, user, password);
+        function c = addDataStore(obj, host, username, password)
+            c = encore.core.Encore.connect(host, username, password);
             % TODO: Remove me
             addTestData(c);
             notify(obj, 'AddedDataStore', encoreui.app.AppEventData(c));

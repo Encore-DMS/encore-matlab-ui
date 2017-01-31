@@ -34,7 +34,6 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'AddDataStore', @obj.onViewSelectedAddDataStore);
             obj.addListener(v, 'Exit', @obj.onViewSelectedExit);
             obj.addListener(v, 'ToggleDataStoreList', @obj.onViewToggleDataStoreList);
-            obj.addListener(v, 'AddProject', @obj.onViewSelectedAddProject);
             obj.addListener(v, 'ConfigureOptions', @obj.onViewSelectedConfigureOptions);
             obj.addListener(v, 'ShowDocumentation', @obj.onViewSelectedShowDocumentation);
             obj.addListener(v, 'ShowUserGroup', @obj.onViewSelectedShowUserGroup);
@@ -102,10 +101,6 @@ classdef MainPresenter < appbox.Presenter
             for i = 1:numel(projects)
                 obj.addProjectNode(projects{i});
             end
-        end
-        
-        function onViewSelectedAddProject(obj, ~, ~)
-            disp('add project');
         end
         
         function n = addProjectNode(obj, project)
