@@ -13,6 +13,9 @@ classdef MainView < appbox.View
         SyncDataStore
         SelectedEntityNodes
         EntityNodeExpanded
+        SetProjectName
+        SetProjectPurpose
+        SetExperimentPurpose
         SetEntityProperty
         AddEntityProperty
         RemoveEntityProperty
@@ -545,8 +548,24 @@ classdef MainView < appbox.View
             set(n, 'UIContextMenu', menu);
         end
         
+        function enableProjectName(obj, tf)
+            set(obj.dataStoreCard.projectCard.nameField, 'Enable', appbox.onOff(tf));
+        end
+        
+        function n = getProjectName(obj)
+            n = get(obj.dataStoreCard.projectCard.nameField, 'String');
+        end
+        
         function setProjectName(obj, n)
             set(obj.dataStoreCard.projectCard.nameField, 'String', n);
+        end
+        
+        function enableProjectPurpose(obj, tf)
+            set(obj.dataStoreCard.projectCard.purposeField, 'Enable', appbox.onOff(tf));
+        end
+        
+        function p = getProjectPurpose(obj)
+            p = get(obj.dataStoreCard.projectCard.purposeField, 'String');
         end
         
         function setProjectPurpose(obj, p)
@@ -570,6 +589,14 @@ classdef MainView < appbox.View
             set(n, 'UIContextMenu', menu);
         end
         
+        function enableExperimentPurpose(obj, tf)
+            set(obj.dataStoreCard.experimentCard.purposeField, 'Enable', appbox.onOff(tf));
+        end
+        
+        function p = getExperimentPurpose(obj)
+            p = get(obj.dataStoreCard.experimentCard.purposeField, 'String');
+        end
+        
         function setExperimentPurpose(obj, p)
             set(obj.dataStoreCard.experimentCard.purposeField, 'String', p);
         end
@@ -589,37 +616,49 @@ classdef MainView < appbox.View
         function setSelectedEntityNodes(obj, nodes)
             obj.dataStoreCard.entityTree.SelectedNodes = nodes;
         end
+        
+        function n = getNodeName(obj, node) %#ok<INUSL>
+            n = get(node, 'Name');
+        end
 
-        function e = getNodeEntity(obj, node)
+        function setNodeName(obj, node, name) %#ok<INUSL>
+            set(node, 'Name', name);
+        end
+
+        function e = getNodeEntity(obj, node) %#ok<INUSL>
             v = get(node, 'Value');
             e = v.entity;
         end
 
-        function t = getNodeType(obj, node)
+        function t = getNodeType(obj, node) %#ok<INUSL>
             v = get(node, 'Value');
             t = v.type;
         end
         
-        function p = getNodeParent(obj, node)
+        function p = getNodeParent(obj, node) %#ok<INUSL>
             p = get(node, 'Parent');
         end
         
-        function c = getNodeChildren(obj, node)
+        function c = getNodeChildren(obj, node) %#ok<INUSL>
             c = get(node, 'Children');
         end
         
-        function removeNode(obj, node)
+        function removeNode(obj, node) %#ok<INUSL>
             node.delete();
         end
         
-        function collapseNode(obj, node)
+        function collapseNode(obj, node) %#ok<INUSL>
             node.collapse();
         end
         
-        function expandNode(obj, node)
+        function expandNode(obj, node) %#ok<INUSL>
             node.expand();
         end
 
+        function stopEditingProperties(obj)
+            obj.dataStoreCard.propertiesTab.grid.StopEditing();
+        end
+        
     end
     
     methods (Access = private)

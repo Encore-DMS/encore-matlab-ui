@@ -5,6 +5,7 @@ classdef MainPresenter < appbox.Presenter
         dataStoreService
         configurationService
         detailedEntityNodes
+        uuidToNodes
     end
 
     methods
@@ -19,6 +20,7 @@ classdef MainPresenter < appbox.Presenter
             obj.dataStoreService = dataStoreService;
             obj.configurationService = configurationService;
             obj.detailedEntityNodes = [];
+            obj.uuidToNodes = containers.Map();
         end
 
     end
@@ -41,6 +43,9 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'SyncDataStore', @obj.onViewSelectedSyncDataStore);
             obj.addListener(v, 'SelectedEntityNodes', @obj.onViewSelectedEntityNodes);
             obj.addListener(v, 'EntityNodeExpanded', @obj.onViewEntityNodeExpanded);
+            obj.addListener(v, 'SetProjectName', @obj.onViewSetProjectName);
+            obj.addListener(v, 'SetProjectPurpose', @obj.onViewSetProjectPurpose);
+            obj.addListener(v, 'SetExperimentPurpose', @obj.onViewSetExperimentPurpose);
             obj.addListener(v, 'SendEntityToWorkspace', @obj.onViewSelectedSendEntityToWorkspace);
             obj.addListener(v, 'ReloadEntity', @obj.onViewSelectedReloadEntity);
             obj.addListener(v, 'DeleteEntity', @obj.onViewSelectedDeleteEntity);
@@ -93,6 +98,7 @@ classdef MainPresenter < appbox.Presenter
         
         function populateEntityTreeForDataStore(obj, coordinator)
             obj.view.clearEntityTree();
+            obj.uuidToNodes = containers.Map();
             
             context = coordinator.getContext();
             projects = context.getProjects();
@@ -104,6 +110,12 @@ classdef MainPresenter < appbox.Presenter
         
         function n = addProjectNode(obj, project, parentNode)
             n = obj.view.addProjectNode(parentNode, project.name, project);
+            
+            if obj.uuidToNodes.isKey(project.uuid)
+                obj.uuidToNodes(project.uuid) = [obj.uuidToNodes(project.uuid), n];
+            else
+                obj.uuidToNodes(project.uuid) = n;
+            end
             
             obj.view.addPlaceholderNode(n);
         end
@@ -117,12 +129,45 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function populateEntityDetailsForProjectSet(obj, projectSet)
+            obj.view.enableProjectName(projectSet.size == 1);
             obj.view.setProjectName(projectSet.name);
+            obj.view.enableProjectPurpose(projectSet.size == 1);
             obj.view.setProjectPurpose(projectSet.purpose);
             obj.view.setProjectStartTime(strtrim(datestr(projectSet.startTime, 14)));
             obj.view.setEntityCardSelection(obj.view.PROJECT_ENTITY_CARD);
             
             obj.populateCommonEntityDetailsForEntitySet(projectSet);
+        end
+        
+        function onViewSetProjectName(obj, ~, ~)
+            projectSet = obj.getDetailedEntitySet();
+            try
+                projectSet.name = obj.view.getProjectName();
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
+            obj.updateEntityNodeNamesForProjectSet(projectSet);
+        end
+        
+        function updateEntityNodeNamesForProjectSet(obj, projectSet)
+            for i = 1:projectSet.size
+                project = projectSet.get(i);
+                nodes = obj.uuidToNodes(project.uuid);
+                arrayfun(@(n)obj.view.setNodeName(n, project.name), nodes);
+            end
+        end
+        
+        function onViewSetProjectPurpose(obj, ~, ~)
+            projectSet = obj.getDetailedEntitySet();
+            try
+                projectSet.purpose = obj.view.getProjectPurpose();
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
         end
         
         function n = addExperimentNode(obj, experiment, parentNode)
@@ -133,6 +178,12 @@ classdef MainPresenter < appbox.Presenter
             end
             n = obj.view.addExperimentNode(parentNode, name, experiment);
             
+            if obj.uuidToNodes.isKey(experiment.uuid)
+                obj.uuidToNodes(experiment.uuid) = [obj.uuidToNodes(experiment.uuid), n];
+            else
+                obj.uuidToNodes(experiment.uuid) = n;
+            end
+            
             obj.view.addPlaceholderNode(n);
         end
         
@@ -141,12 +192,39 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function populateEntityDetailsForExperimentSet(obj, experimentSet)
+            obj.view.enableExperimentPurpose(experimentSet.size == 1);
             obj.view.setExperimentPurpose(experimentSet.purpose);
             obj.view.setExperimentStartTime(strtrim(datestr(experimentSet.startTime, 14)));
             obj.view.setExperimentEndTime(strtrim(datestr(experimentSet.endTime, 14)));
             obj.view.setEntityCardSelection(obj.view.EXPERIMENT_ENTITY_CARD);
             
             obj.populateCommonEntityDetailsForEntitySet(experimentSet);
+        end
+        
+        function onViewSetExperimentPurpose(obj, ~, ~)
+            experimentSet = obj.getDetailedEntitySet();
+            try
+                experimentSet.purpose = obj.view.getExperimentPurpose();
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
+            obj.updateEntityNodeNamesForExperimentSet(experimentSet);
+        end
+        
+        function updateEntityNodeNamesForExperimentSet(obj, experimentSet)
+            for i = 1:experimentSet.size
+                experiment = experimentSet.get(i);
+                
+                if isempty(experiment.purpose)
+                    name = datestr(experiment.startTime, 1);
+                else
+                    name = [experiment.purpose ' [' datestr(experiment.startTime, 1) ']'];
+                end
+                nodes = obj.uuidToNodes(experiment.uuid);
+                arrayfun(@(n)obj.view.setNodeName(n, name), nodes);
+            end
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
@@ -185,9 +263,11 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function onViewSelectedEntityNodes(obj, ~, ~)
+            obj.view.stopEditingProperties();
+            obj.view.update();
             
-            [entitySet, nodes] = obj.getSelectedEntitySet();
-            obj.populateEntityDetailsForEntitySet(entitySet);
+            [set, nodes] = obj.getSelectedEntitySet();
+            obj.populateEntityDetailsForEntitySet(set);
             obj.detailedEntityNodes = nodes;
         end
         
@@ -257,7 +337,15 @@ classdef MainPresenter < appbox.Presenter
                 
                 tempNode = obj.view.addPlaceholderNode(node, 1);
                 
-                arrayfun(@(c)obj.view.removeNode(c), children);
+                for k = 1:numel(children)
+                    child = children(k);
+                    
+                    entity = obj.view.getNodeEntity(child);
+                    obj.view.removeNode(child);
+                    
+                    n = obj.uuidToNodes(entity.uuid);
+                    obj.uuidToNodes(entity.uuid) = n(n ~= child);
+                end
                 
                 obj.addEntityNodeChildren(node);
                 
@@ -270,10 +358,18 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function [s, n] = getSelectedEntitySet(obj)
+            n = obj.view.getSelectedEntityNodes();
+            s = obj.getEntitySetFromNodes(n);
+        end
+        
+        function [s, n] = getDetailedEntitySet(obj)
+            n = obj.detailedEntityNodes;
+            s = obj.getEntitySetFromNodes(n);
+        end
+        
+        function s = getEntitySetFromNodes(obj, nodes)
             import encoreui.ui.views.EntityNodeType;
             import encore.core.collections.*;
-            
-            nodes = obj.view.getSelectedEntityNodes();
             
             entities = {};
             types = EntityNodeType.empty(0, numel(nodes));
@@ -287,8 +383,7 @@ classdef MainPresenter < appbox.Presenter
             
             types = unique(types);
             if numel(types) ~= 1
-                s = EntitySet(entities);
-                n = nodes;
+                s = EntitySet({});
                 return;
             end
             type = types(1);
@@ -309,7 +404,6 @@ classdef MainPresenter < appbox.Presenter
                 otherwise
                     s = EntitySet(entities);
             end
-            n = nodes;
         end
 
         function onViewSelectedExit(obj, ~, ~)
