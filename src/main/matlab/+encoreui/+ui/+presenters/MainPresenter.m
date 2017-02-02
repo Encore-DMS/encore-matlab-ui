@@ -4,8 +4,7 @@ classdef MainPresenter < appbox.Presenter
         log
         dataStoreService
         configurationService
-        detailedEntitySet
-        uuidToNode
+        detailedEntityNodes
     end
 
     methods
@@ -19,8 +18,7 @@ classdef MainPresenter < appbox.Presenter
             obj.log = log4m.LogManager.getLogger(class(obj));
             obj.dataStoreService = dataStoreService;
             obj.configurationService = configurationService;
-            obj.detailedEntitySet = encore.core.collections.EntitySet();
-            obj.uuidToNode = containers.Map();
+            obj.detailedEntityNodes = [];
         end
 
     end
@@ -82,6 +80,7 @@ classdef MainPresenter < appbox.Presenter
                 return;
             end
             obj.populateDetailsForDataStore(coordinator);
+            obj.detailedEntityNodes = [];
         end
 
         function populateDetailsForDataStore(obj, coordinator)
@@ -89,8 +88,7 @@ classdef MainPresenter < appbox.Presenter
             
             obj.view.setCardSelection(obj.view.DATA_STORE_CARD);
             
-            entitySet = obj.getSelectedEntitySet();
-            obj.populateEntityDetailsForEntitySet(entitySet);
+            obj.populateEntityDetailsForHeterogeneousEntitySet(encore.core.collections.EntitySet({}));
         end
         
         function populateEntityTreeForDataStore(obj, coordinator)
@@ -98,23 +96,23 @@ classdef MainPresenter < appbox.Presenter
             
             context = coordinator.getContext();
             projects = context.getProjects();
+            parentNode = obj.view.getEntityTreeRootNode();
             for i = 1:numel(projects)
-                obj.addProjectNode(projects{i});
+                obj.addProjectNode(projects{i}, parentNode);
             end
         end
         
-        function n = addProjectNode(obj, project)
-            parent = obj.view.getEntityTreeRootNode();
-            n = obj.view.addProjectNode(parent, project.name, project);
-            obj.uuidToNode(project.uuid) = n;
+        function n = addProjectNode(obj, project, parentNode)
+            n = obj.view.addProjectNode(parentNode, project.name, project);
             
             obj.view.addPlaceholderNode(n);
         end
         
-        function addProjectChildNodes(obj, project)
+        function addProjectNodeChildren(obj, projectNode)
+            project = obj.view.getNodeEntity(projectNode);
             experiments = project.getExperiments();
             for i = 1:numel(experiments)
-                obj.addExperimentNode(project, experiments{i});
+                obj.addExperimentNode(experiments{i}, projectNode);
             end
         end
         
@@ -127,17 +125,19 @@ classdef MainPresenter < appbox.Presenter
             obj.populateCommonEntityDetailsForEntitySet(projectSet);
         end
         
-        function n = addExperimentNode(obj, project, experiment)
-            parent = obj.uuidToNode(project.uuid);
+        function n = addExperimentNode(obj, experiment, parentNode)
             if isempty(experiment.purpose)
                 name = datestr(experiment.startTime, 1);
             else
                 name = [experiment.purpose ' [' datestr(experiment.startTime, 1) ']'];
             end
-            n = obj.view.addExperimentNode(parent, name, experiment);
-            obj.uuidToNode(experiment.uuid) = n;
+            n = obj.view.addExperimentNode(parentNode, name, experiment);
             
             obj.view.addPlaceholderNode(n);
+        end
+        
+        function addExperimentNodeChildren(obj, experimentNode)
+            
         end
         
         function populateEntityDetailsForExperimentSet(obj, experimentSet)
@@ -166,6 +166,17 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
+        function addEntityNodeChildren(obj, entityNode)
+            import encoreui.ui.views.EntityNodeType;
+            
+            switch obj.view.getNodeType(entityNode)
+                case EntityNodeType.PROJECT
+                    obj.addProjectNodeChildren(entityNode);
+                case EntityNodeType.EXPERIMENT
+                    obj.addExperimentNodeChildren(entityNode);
+            end
+        end
+        
         function populateEntityDetailsForHeterogeneousEntitySet(obj, entitySet)
             obj.view.setEmptyEntityText('');
             obj.view.setEntityCardSelection(obj.view.EMPTY_ENTITY_CARD);
@@ -175,8 +186,9 @@ classdef MainPresenter < appbox.Presenter
         
         function onViewSelectedEntityNodes(obj, ~, ~)
             
-            entitySet = obj.getSelectedEntitySet();
+            [entitySet, nodes] = obj.getSelectedEntitySet();
             obj.populateEntityDetailsForEntitySet(entitySet);
+            obj.detailedEntityNodes = nodes;
         end
         
         function populateEntityDetailsForEntitySet(obj, entitySet)
@@ -207,7 +219,6 @@ classdef MainPresenter < appbox.Presenter
         
         function populateCommonEntityDetailsForEntitySet(obj, entitySet)
             
-            obj.detailedEntitySet = entitySet;
         end
         
         function onViewEntityNodeExpanded(obj, ~, event)
@@ -219,21 +230,17 @@ classdef MainPresenter < appbox.Presenter
                 return;
             end
             
-            entity = obj.view.getNodeEntity(node);
-            type = obj.view.getNodeType(node);
-            switch type
-                case EntityNodeType.PROJECT
-                    obj.addProjectChildNodes(entity);
-            end
+            obj.addEntityNodeChildren(node);
             
             obj.view.removeNode(children(1));
         end
         
         function onViewSelectedSendEntityToWorkspace(obj, ~, ~)
-            entitySet = obj.detailedEntitySet;
-            for i = 1:entitySet.size
+            nodes = obj.detailedEntityNodes;
+            for i = 1:numel(nodes)
+                entity = obj.view.getNodeEntity(nodes(i));
                 try
-                    obj.dataStoreService.sendEntityToWorkspace(entitySet.get(i));
+                    obj.dataStoreService.sendEntityToWorkspace(entity);
                 catch x
                     obj.log.debug(x.message, x);
                     obj.view.showError(x.message);
@@ -243,14 +250,26 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function onViewSelectedReloadEntity(obj, ~, ~)
-            disp('reload entity');
+            nodes = obj.detailedEntityNodes;
+            for i = 1:numel(nodes)
+                node = nodes(i);
+                children = obj.view.getNodeChildren(node);
+                
+                tempNode = obj.view.addPlaceholderNode(node, 1);
+                
+                arrayfun(@(c)obj.view.removeNode(c), children);
+                
+                obj.addEntityNodeChildren(node);
+                
+                obj.view.removeNode(tempNode);                
+            end
         end
         
         function onViewSelectedDeleteEntity(obj, ~, ~)
             disp('delete entity');
         end
         
-        function s = getSelectedEntitySet(obj)
+        function [s, n] = getSelectedEntitySet(obj)
             import encoreui.ui.views.EntityNodeType;
             import encore.core.collections.*;
             
@@ -268,7 +287,8 @@ classdef MainPresenter < appbox.Presenter
             
             types = unique(types);
             if numel(types) ~= 1
-                s = EntitySet({});
+                s = EntitySet(entities);
+                n = nodes;
                 return;
             end
             type = types(1);
@@ -289,6 +309,7 @@ classdef MainPresenter < appbox.Presenter
                 otherwise
                     s = EntitySet(entities);
             end
+            n = nodes;
         end
 
         function onViewSelectedExit(obj, ~, ~)

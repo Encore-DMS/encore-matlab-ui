@@ -519,13 +519,16 @@ classdef MainView < appbox.View
             set(obj.dataStoreCard.emptyCard.text, 'String', t);
         end
         
-        function n = addPlaceholderNode(obj, parent)
+        function n = addPlaceholderNode(obj, parent, index)
+            if nargin < 3
+                index = [];
+            end
             value.entity = [];
             value.type = encoreui.ui.views.EntityNodeType.PLACEHOLDER;
             n = uiextras.jTree.TreeNode( ...
-                'Parent', parent, ...
                 'Name', 'Loading...', ...
                 'Value', value);
+            n.setParent(parent, index);
             n.setIcon(encoreui.app.App.getResource('icons', 'hourglass.png'));
         end
         
@@ -595,6 +598,10 @@ classdef MainView < appbox.View
         function t = getNodeType(obj, node)
             v = get(node, 'Value');
             t = v.type;
+        end
+        
+        function p = getNodeParent(obj, node)
+            p = get(node, 'Parent');
         end
         
         function c = getNodeChildren(obj, node)

@@ -37,10 +37,11 @@ function addTestData(coordinator)
     t = datetime('now', 'TimeZone', 'local');
     
     p1 = context.insertProject('my first', 'for testing purposes', t, t);
-    p1.insertExperiment('exp1', t, t);
+    e1 = p1.insertExperiment('exp1', t, t);
     p1.insertExperiment('exp2', t, t);
     
     p2 = context.insertProject('second', 'another one for testing', t);
     p2.insertExperiment('exp3', t, t);
     p2.insertExperiment('exp4', t, t);
+    p2.addExperiment(e1);
 end
