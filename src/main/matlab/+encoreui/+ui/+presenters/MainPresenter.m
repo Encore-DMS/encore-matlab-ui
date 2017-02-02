@@ -79,6 +79,9 @@ classdef MainPresenter < appbox.Presenter
         end
 
         function onViewSelectedDataStoreNode(obj, ~, ~)
+            obj.view.stopEditingProperties();
+            obj.view.update();
+            
             coordinator = obj.getSelectedDataStore();
             if isempty(coordinator)
                 obj.view.setCardSelection(obj.view.EMPTY_CARD);
