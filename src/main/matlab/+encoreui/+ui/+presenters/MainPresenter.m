@@ -231,7 +231,8 @@ classdef MainPresenter < appbox.Presenter
         end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
-            disp('query data store');
+            presenter = encoreui.ui.presenters.QueryPresenter();
+            presenter.goWaitStop();
         end
 
         function onViewSelectedSyncDataStore(obj, ~, ~)

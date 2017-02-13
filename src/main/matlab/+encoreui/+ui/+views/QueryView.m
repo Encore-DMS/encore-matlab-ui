@@ -1,61 +1,55 @@
-classdef AddDataStoreView < appbox.View
-
+classdef QueryView < appbox.View
+    
     events
-        Add
+        Query
         Cancel
     end
-
+    
     properties (Access = private)
-        hostField
-        usernameField
-        passwordField
+        typePopupMenu
+        qlStringField
         spinner
-        addButton
+        queryButton
         cancelButton
     end
-
+    
     methods
-
+        
         function createUi(obj)
             import appbox.*;
-
+            
             set(obj.figureHandle, ...
-                'Name', 'Add Data Store', ...
-                'Position', screenCenter(hpix(330/11), vpix(139/16)), ...
+                'Name', 'Query', ...
+                'Position', screenCenter(hpix(330/11), vpix(109/16)), ...
                 'Resize', 'off');
-
+            
             mainLayout = uix.VBox( ...
                 'Parent', obj.figureHandle, ...
                 'Padding', 11, ...
                 'Spacing', 11);
-
-            storeLayout = uix.Grid( ...
+            
+            queryLayout = uix.Grid( ...
                 'Parent', mainLayout, ...
                 'Spacing', 7);
             Label( ...
-                'Parent', storeLayout, ...
-                'String', 'Host:');
+                'Parent', queryLayout, ...
+                'String', 'Type:');
             Label( ...
-                'Parent', storeLayout, ...
-                'String', 'Username:');
-            Label( ...
-                'Parent', storeLayout, ...
-                'String', 'Password:');
-            obj.hostField = uicontrol( ...
-                'Parent', storeLayout, ...
+                'Parent', queryLayout, ...
+                'String', 'Query:');
+            obj.typePopupMenu = MappedPopupMenu( ...
+                'Parent', queryLayout, ...
+                'String', {' '}, ...
+                'HorizontalAlignment', 'left');
+            obj.qlStringField = uicontrol( ...
+                'Parent', queryLayout, ...
                 'Style', 'edit', ...
                 'HorizontalAlignment', 'left');
-            obj.usernameField = uicontrol( ...
-                'Parent', storeLayout, ...
-                'Style', 'edit', ...
-                'HorizontalAlignment', 'left');
-            obj.passwordField = PasswordField( ...
-                'Parent', storeLayout);
-            set(storeLayout, ...
-                'Widths', [hpix(65/11) -1], ...
-                'Heights', [vpix(23/16) vpix(23/16) vpix(23/16)]);
-
-            % Add/Cancel controls.
+            set(queryLayout, ...
+                'Widths', [hpix(45/11) -1], ...
+                'Heights', [vpix(23/16) vpix(23/16)]);
+            
+            % Query/Cancel controls.
             controlsLayout = uix.HBox( ...
                 'Parent', mainLayout, ...
                 'Spacing', 7);
@@ -66,12 +60,12 @@ classdef AddDataStoreView < appbox.View
             javacomponent(obj.spinner.getComponent(), [], spinnerLayout);
             set(spinnerLayout, 'Heights', [4 -1]);
             uix.Empty('Parent', controlsLayout);
-            obj.addButton = uicontrol( ...
+            obj.queryButton = uicontrol( ...
                 'Parent', controlsLayout, ...
                 'Style', 'pushbutton', ...
-                'String', 'Add', ...
+                'String', 'Query', ...
                 'Interruptible', 'off', ...
-                'Callback', @(h,d)notify(obj, 'Add'));
+                'Callback', @(h,d)notify(obj, 'Query'));
             obj.cancelButton = uicontrol( ...
                 'Parent', controlsLayout, ...
                 'Style', 'pushbutton', ...
@@ -82,52 +76,53 @@ classdef AddDataStoreView < appbox.View
 
             set(mainLayout, 'Heights', [-1 vpix(23/16)]);
 
-            % Set add button to appear as the default button.
+            % Set query button to appear as the default button.
             try %#ok<TRYNC>
                 h = handle(obj.figureHandle);
-                h.setDefaultButton(obj.addButton);
+                h.setDefaultButton(obj.queryButton);
             end
         end
         
-        function enableAdd(obj, tf)
-            set(obj.addButton, 'Enable', appbox.onOff(tf));
+        function enableQuery(obj, tf)
+            set(obj.queryButton, 'Enable', appbox.onOff(tf));
         end
         
-        function tf = getEnableAdd(obj)
-            tf = appbox.onOff(get(obj.addButton, 'Enable'));
+        function tf = getEnableQuery(obj)
+            tf = appbox.onOff(get(obj.queryButton, 'Enable'));
         end
         
         function enableCancel(obj, tf)
             set(obj.cancelButton, 'Enable', appbox.onOff(tf));
         end
         
-        function enableHost(obj, tf)
-            set(obj.hostField, 'Enable', appbox.onOff(tf));
+        function enableSelectType(obj, tf)
+            set(obj.typePopupMenu, 'Enable', appbox.onOff(tf));
         end
-
-        function u = getHost(obj)
-            u = get(obj.hostField, 'String');
+        
+        function t = getSelectedType(obj)
+            t = get(obj.typePopupMenu, 'Value');
         end
-
-        function requestHostFocus(obj)
+        
+        function l = getTypeList(obj)
+            l = get(obj.typePopupMenu, 'Values');
+        end
+        
+        function setTypeList(obj, names, values)
+            set(obj.typePopupMenu, 'String', names);
+            set(obj.typePopupMenu, 'Values', values);
+        end
+        
+        function enableQlString(obj, tf)
+            set(obj.qlStringField, 'Enable', appbox.onOff(tf));
+        end
+        
+        function s = getQlString(obj)
+            s = get(obj.qlStringField, 'String');
+        end
+        
+        function requestQlStringFocus(obj)
             obj.update();
-            uicontrol(obj.hostField);
-        end
-        
-        function enableUsername(obj, tf)
-            set(obj.usernameField, 'Enable', appbox.onOff(tf));
-        end
-
-        function u = getUsername(obj)
-            u = get(obj.usernameField, 'String');
-        end
-        
-        function enablePassword(obj, tf)
-            set(obj.passwordField, 'Enable', appbox.onOff(tf));
-        end
-
-        function p = getPassword(obj)
-            p = get(obj.passwordField, 'String');
+            uicontrol(obj.qlStringField);
         end
         
         function startSpinner(obj)
@@ -137,7 +132,8 @@ classdef AddDataStoreView < appbox.View
         function stopSpinner(obj)
             obj.spinner.stop();
         end
-
+        
     end
-
+    
 end
+
