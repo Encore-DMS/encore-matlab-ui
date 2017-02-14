@@ -46,6 +46,8 @@ classdef MainPresenter < appbox.Presenter
             obj.addListener(v, 'SetProjectName', @obj.onViewSetProjectName);
             obj.addListener(v, 'SetProjectPurpose', @obj.onViewSetProjectPurpose);
             obj.addListener(v, 'SetExperimentPurpose', @obj.onViewSetExperimentPurpose);
+            obj.addListener(v, 'SetSourceLabel', @obj.onViewSetSourceLabel);
+            obj.addListener(v, 'SetEpochGroupLabel', @obj.onViewSetEpochGroupLabel);
             obj.addListener(v, 'SendEntityToWorkspace', @obj.onViewSelectedSendEntityToWorkspace);
             obj.addListener(v, 'ReloadEntity', @obj.onViewSelectedReloadEntity);
             obj.addListener(v, 'DeleteEntity', @obj.onViewSelectedDeleteEntity);
@@ -191,7 +193,8 @@ classdef MainPresenter < appbox.Presenter
         end
         
         function addExperimentNodeChildren(obj, experimentNode)
-            
+            obj.addSourcesFolderNode(experimentNode);
+            obj.addEpochGroupsFolderNode(experimentNode);
         end
         
         function populateEntityDetailsForExperimentSet(obj, experimentSet)
@@ -229,6 +232,125 @@ classdef MainPresenter < appbox.Presenter
                 arrayfun(@(n)obj.view.setNodeName(n, name), nodes);
             end
         end
+        
+        function addSourcesFolderNode(obj, parentNode)
+            n = obj.view.addSourcesFolderNode(parentNode);            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function addSourcesFolderNodeChildren(obj, sourcesFolderNode)
+            experimentNode = obj.view.getNodeParent(sourcesFolderNode);
+            experiment = obj.view.getNodeEntity(experimentNode);
+            sources = experiment.getSources();
+            for i = 1:numel(sources)
+                obj.addSourceNode(sources{i}, sourcesFolderNode);
+            end
+        end
+        
+        function n = addSourceNode(obj, source, parentNode)
+            n = obj.view.addSourceNode(parentNode, source.label, source);
+            
+            if obj.uuidToNodes.isKey(source.uuid)
+                obj.uuidToNodes(source.uuid) = [obj.uuidToNodes(source.uuid), n];
+            else
+                obj.uuidToNodes(source.uuid) = n;
+            end
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function populateEntityDetailsForSourceSet(obj, sourceSet)
+            obj.view.enableSourceLabel(sourceSet.size == 1);
+            obj.view.setSourceLabel(sourceSet.label);
+            obj.view.setEntityCardSelection(obj.view.SOURCE_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(sourceSet);
+        end
+        
+        function onViewSetSourceLabel(obj, ~, ~)
+            sourceSet = obj.getDetailedEntitySet();
+            try
+                sourceSet.label = obj.view.getSourceLabel();
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
+            obj.updateEntityNodeNamesForSourceSet(sourceSet);
+        end
+        
+        function updateEntityNodeNamesForSourceSet(obj, sourceSet)
+            for i = 1:sourceSet.size
+                source = sourceSet.get(i);
+                nodes = obj.uuidToNodes(source.uuid);
+                arrayfun(@(n)obj.view.setNodeName(n, source.label), nodes);
+            end
+        end
+        
+        function addEpochGroupsFolderNode(obj, parentNode)
+            n = obj.view.addEpochGroupsFolderNode(parentNode);            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function addEpochGroupsFolderNodeChildren(obj, epochGroupsFolderNode)
+            experimentNode = obj.view.getNodeParent(epochGroupsFolderNode);
+            experiment = obj.view.getNodeEntity(experimentNode);
+            epochGroups = experiment.getEpochGroups();
+            for i = 1:numel(epochGroups)
+                obj.addEpochGroupNode(epochGroups{i}, epochGroupsFolderNode);
+            end
+        end
+        
+        function populateEntityDetailsForEpochGroupSet(obj, groupSet)
+            obj.view.enableEpochGroupLabel(groupSet.size == 1);
+            obj.view.setEpochGroupLabel(groupSet.label);
+            obj.view.setEpochGroupStartTime(strtrim(datestr(groupSet.startTime, 14)));
+            obj.view.setEpochGroupEndTime(strtrim(datestr(groupSet.endTime, 14)));
+            
+            source = groupSet.source;
+            if isempty(source)
+                label = '';
+            else
+                label = source.label;
+            end
+            obj.view.setEpochGroupSource(label);
+            
+            obj.view.setEntityCardSelection(obj.view.EPOCH_GROUP_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(groupSet);
+        end
+        
+        function n = addEpochGroupNode(obj, group, parentNode)
+            n = obj.view.addEpochGroupNode(parentNode, [group.label ' (' group.source.label ')'], group);
+            
+            if obj.uuidToNodes.isKey(group.uuid)
+                obj.uuidToNodes(group.uuid) = [obj.uuidToNodes(group.uuid), n];
+            else
+                obj.uuidToNodes(group.uuid) = n;
+            end
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function onViewSetEpochGroupLabel(obj, ~, ~)
+            groupSet = obj.getDetailedEntitySet();
+            try
+                groupSet.label = obj.view.getEpochGroupLabel();
+            catch x
+                obj.log.debug(x.message, x);
+                obj.view.showError(x.message);
+                return;
+            end
+            obj.updateEntityNodeNamesForEpochGroupSet(groupSet);
+        end
+        
+        function updateEntityNodeNamesForEpochGroupSet(obj, groupSet)
+            for i = 1:groupSet.size
+                group = groupSet.get(i);
+                nodes = obj.uuidToNodes(group.uuid);
+                arrayfun(@(n)obj.view.setNodeName(n, [group.label ' (' group.source.label ')']), nodes);
+            end
+        end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
             presenter = encoreui.ui.presenters.QueryPresenter();
@@ -256,6 +378,10 @@ classdef MainPresenter < appbox.Presenter
                     obj.addProjectNodeChildren(entityNode);
                 case EntityNodeType.EXPERIMENT
                     obj.addExperimentNodeChildren(entityNode);
+                case EntityNodeType.SOURCES_FOLDER
+                    obj.addSourcesFolderNodeChildren(entityNode);
+                case EntityNodeType.EPOCH_GROUPS_FOLDER
+                    obj.addEpochGroupsFolderNodeChildren(entityNode);
             end
         end
         
