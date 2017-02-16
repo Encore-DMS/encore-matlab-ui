@@ -473,8 +473,10 @@ classdef MainPresenter < appbox.Presenter
                     entity = obj.view.getNodeEntity(child);
                     obj.view.removeNode(child);
                     
-                    n = obj.uuidToNodes(entity.uuid);
-                    obj.uuidToNodes(entity.uuid) = n(n ~= child);
+                    if ~isempty(entity)
+                        n = obj.uuidToNodes(entity.uuid);
+                        obj.uuidToNodes(entity.uuid) = n(n ~= child);
+                    end
                 end
                 
                 obj.addEntityNodeChildren(node);
