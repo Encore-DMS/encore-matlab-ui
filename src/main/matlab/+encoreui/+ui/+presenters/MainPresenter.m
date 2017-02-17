@@ -259,6 +259,14 @@ classdef MainPresenter < appbox.Presenter
             obj.view.addPlaceholderNode(n);
         end
         
+        function addSourceNodeChildren(obj, sourceNode)
+            source = obj.view.getNodeEntity(sourceNode);
+            children = source.getChildren();
+            for i = 1:numel(children)
+                obj.addSourceNode(children{i}, sourceNode);
+            end
+        end
+        
         function populateEntityDetailsForSourceSet(obj, sourceSet)
             obj.view.enableSourceLabel(sourceSet.size == 1);
             obj.view.setSourceLabel(sourceSet.label);
@@ -301,6 +309,26 @@ classdef MainPresenter < appbox.Presenter
             end
         end
         
+        function n = addEpochGroupNode(obj, group, parentNode)
+            n = obj.view.addEpochGroupNode(parentNode, [group.label ' (' group.source.label ')'], group);
+            
+            if obj.uuidToNodes.isKey(group.uuid)
+                obj.uuidToNodes(group.uuid) = [obj.uuidToNodes(group.uuid), n];
+            else
+                obj.uuidToNodes(group.uuid) = n;
+            end
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function addEpochGroupNodeChildren(obj, groupNode)
+            group = obj.view.getNodeEntity(groupNode);
+            children = group.getChildren();
+            for i = 1:numel(children)
+                obj.addEpochGroupNode(children{i}, groupNode);
+            end
+        end
+        
         function populateEntityDetailsForEpochGroupSet(obj, groupSet)
             obj.view.enableEpochGroupLabel(groupSet.size == 1);
             obj.view.setEpochGroupLabel(groupSet.label);
@@ -318,19 +346,7 @@ classdef MainPresenter < appbox.Presenter
             obj.view.setEntityCardSelection(obj.view.EPOCH_GROUP_ENTITY_CARD);
             
             obj.populateCommonEntityDetailsForEntitySet(groupSet);
-        end
-        
-        function n = addEpochGroupNode(obj, group, parentNode)
-            n = obj.view.addEpochGroupNode(parentNode, [group.label ' (' group.source.label ')'], group);
-            
-            if obj.uuidToNodes.isKey(group.uuid)
-                obj.uuidToNodes(group.uuid) = [obj.uuidToNodes(group.uuid), n];
-            else
-                obj.uuidToNodes(group.uuid) = n;
-            end
-            
-            obj.view.addPlaceholderNode(n);
-        end
+        end        
         
         function onViewSetEpochGroupLabel(obj, ~, ~)
             groupSet = obj.getDetailedEntitySet();
@@ -380,8 +396,12 @@ classdef MainPresenter < appbox.Presenter
                     obj.addExperimentNodeChildren(entityNode);
                 case EntityNodeType.SOURCES_FOLDER
                     obj.addSourcesFolderNodeChildren(entityNode);
+                case EntityNodeType.SOURCE
+                    obj.addSourceNodeChildren(entityNode);
                 case EntityNodeType.EPOCH_GROUPS_FOLDER
                     obj.addEpochGroupsFolderNodeChildren(entityNode);
+                case EntityNodeType.EPOCH_GROUP
+                    obj.addEpochGroupNodeChildren(entityNode);
             end
         end
         
