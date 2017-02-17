@@ -46,6 +46,8 @@ function addTestData(coordinator)
     s2_1.insertSource('src2_1_1');
     g1 = e1.insertEpochGroup(s1, 'grp1', t, t);
     g1.insertEpochGroup(s1_1, 'grp1_1', t, t);
+    b1 = g1.insertEpochBlock('protocol.test1', [], t, t);
+    b1.insertEpoch(t, t);
     g2 = e1.insertEpochGroup(s2, 'grp2', t, t);
     g2.insertEpochGroup(s2_1, 'grp2_1', t, t);
     p1.insertExperiment('exp2', t, t);

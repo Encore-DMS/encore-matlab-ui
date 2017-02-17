@@ -323,9 +323,22 @@ classdef MainPresenter < appbox.Presenter
         
         function addEpochGroupNodeChildren(obj, groupNode)
             group = obj.view.getNodeEntity(groupNode);
+            
+            blocks = group.getEpochBlocks();
             children = group.getChildren();
-            for i = 1:numel(children)
-                obj.addEpochGroupNode(children{i}, groupNode);
+            
+            sorted = [blocks children];
+            times = cellfun(@(e)e.startTime, sorted, 'UniformOutput', false);
+            [~, i] = sort([times{:}]);
+            sorted = sorted(i);
+            
+            for i = 1:numel(sorted)
+                entity = sorted{i};
+                if entity.getEntityType() == encore.core.EntityType.EPOCH_BLOCK
+                    obj.addEpochBlockNode(entity, groupNode);
+                else
+                    obj.addEpochGroupNode(entity, groupNode);
+                end
             end
         end
         
@@ -367,6 +380,57 @@ classdef MainPresenter < appbox.Presenter
                 arrayfun(@(n)obj.view.setNodeName(n, [group.label ' (' group.source.label ')']), nodes);
             end
         end
+        
+        function n = addEpochBlockNode(obj, block, parentNode)
+            split = strsplit(block.protocolId, '.');
+            n = obj.view.addEpochBlockNode(parentNode, [appbox.humanize(split{end}) ' [' datestr(block.startTime, 13) ']'], block);
+            
+            if obj.uuidToNodes.isKey(block.uuid)
+                obj.uuidToNodes(block.uuid) = [obj.uuidToNodes(block.uuid), n];
+            else
+                obj.uuidToNodes(block.uuid) = n;
+            end
+            
+            obj.view.addPlaceholderNode(n);
+        end
+        
+        function addEpochBlockNodeChildren(obj, blockNode)
+            block = obj.view.getNodeEntity(blockNode);
+            epochs = block.getEpochs();
+            for i = 1:numel(epochs)
+                obj.addEpochNode(epochs{i}, blockNode);
+            end
+        end
+        
+        function populateEntityDetailsForEpochBlockSet(obj, blockSet)
+            obj.view.setEpochBlockProtocolId(blockSet.protocolId);
+            obj.view.setEpochBlockStartTime(strtrim(datestr(blockSet.startTime, 14)));
+            obj.view.setEpochBlockEndTime(strtrim(datestr(blockSet.endTime, 14)));
+            obj.view.setEntityCardSelection(obj.view.EPOCH_BLOCK_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(blockSet);
+        end
+        
+        function n = addEpochNode(obj, epoch, parentNode)
+            name = datestr(epoch.startTime, 'HH:MM:SS:FFF');
+            parameters = appbox.mapstr(epoch.protocolParameters);
+            if ~isempty(parameters)
+                name = [name ' [' parameters ']'];
+            end
+            n = obj.view.addEpochNode(parentNode, name, epoch);
+            
+            if obj.uuidToNodes.isKey(epoch.uuid)
+                obj.uuidToNodes(epoch.uuid) = [obj.uuidToNodes(epoch.uuid), n];
+            else
+                obj.uuidToNodes(epoch.uuid) = n;
+            end
+        end
+        
+        function populateEntityDetailsForEpochSet(obj, epochSet)
+            obj.view.setEntityCardSelection(obj.view.EPOCH_ENTITY_CARD);
+            
+            obj.populateCommonEntityDetailsForEntitySet(epochSet);
+        end
 
         function onViewSelectedQueryDataStore(obj, ~, ~)
             presenter = encoreui.ui.presenters.QueryPresenter();
@@ -402,6 +466,8 @@ classdef MainPresenter < appbox.Presenter
                     obj.addEpochGroupsFolderNodeChildren(entityNode);
                 case EntityNodeType.EPOCH_GROUP
                     obj.addEpochGroupNodeChildren(entityNode);
+                case EntityNodeType.EPOCH_BLOCK
+                    obj.addEpochBlockNodeChildren(entityNode);
             end
         end
         
