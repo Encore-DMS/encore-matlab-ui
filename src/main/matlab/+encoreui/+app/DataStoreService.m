@@ -38,12 +38,12 @@ function addTestData(coordinator)
     
     p1 = context.insertProject('my first', 'for testing purposes', t, t);
     e1 = p1.insertExperiment('exp1', t, t);
-    s1 = e1.insertSource('src1');
-    s1_1 = s1.insertSource('src1_1');
-    s1_1.insertSource('src1_1_1');
-    s2 = e1.insertSource('src2');
-    s2_1 = s2.insertSource('src2_1');
-    s2_1.insertSource('src2_1_1');
+    s1 = e1.insertSource('src1', t, 's1');
+    s1_1 = s1.insertSource('src1_1', t, 's1_1');
+    s1_1.insertSource('src1_1_1', t, 's1_1_1');
+    s2 = e1.insertSource('src2', t, 's2');
+    s2_1 = s2.insertSource('src2_1', t, 's2_1');
+    s2_1.insertSource('src2_1_1', t, 's2_1_1');
     g1 = e1.insertEpochGroup(s1, 'grp1', t, t);
     g1.insertEpochGroup(s1_1, 'grp1_1', t, t);
     b1 = g1.insertEpochBlock('protocol.test1', [], t, t);
